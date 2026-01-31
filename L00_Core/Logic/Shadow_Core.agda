@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --guardedness #-}
 
-module UMIN.Logic-Axioms where
+module UMIN.L00_Core.Logic.Shadow_Core where
 
 open import Agda.Primitive using (Level; lzero; lsuc)
 open import Cubical.Core.Primitives
