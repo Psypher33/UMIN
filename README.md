@@ -261,8 +261,6 @@ This project is licensed under the **MIT License** — see [LICENSE](LICENSE) fi
 ## 🙏 Acknowledgments
 
 We thank:
-- **Prof. Urs Schreiber** for invaluable feedback on homotopy-theoretic aspects
-- **Prof. Tom Leinster** for correspondence on magnitude theory extensions
 - **Anthropic & xAI** for providing AI computational resources
 - **ChatGPT (OpenAI)** for early-stage conceptual discussions
 - **The Agda Community** for Cubical library development
