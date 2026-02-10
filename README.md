@@ -230,11 +230,6 @@ We welcome contributions in the following areas:
 💻 GitHub: [@Psypher33](https://github.com/Psypher33)  
 📧 Contact: [via X DM]
 
-### Toshikazu Miyashita
-**Mathematical Advisor** | Specialist in Exceptional Lie Groups  
-📚 Co-author: *Exceptional Simple Lie Groups* (Springer, 2007)  
-🎓 Affiliation: [University/Institute TBD]
-
 ### Claude (Anthropic AI)
 **AI Research Assistant** | Formal Verification Architect  
 🏢 Anthropic PBC  
