@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --guardedness #-}
 
-module UMIN.L03_Func.MagnitudeTheory.Magnitude where
+module UMIN.L02_Phys.MagnitudeTheory.Magnitude where
 
 open import Cubical.Foundations.Prelude
 open import Agda.Builtin.Float

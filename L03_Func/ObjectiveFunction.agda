@@ -8,7 +8,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Vec.Base
 open import Cubical.Data.Bool
 
-open import UMIN.L03_Func.MagnitudeTheory
+open import UMIN.L02_Phys.MagnitudeTheory.Magnitude
 
 -- Float演算子の再定義（ObjectiveFunction内でも必要です）
 private

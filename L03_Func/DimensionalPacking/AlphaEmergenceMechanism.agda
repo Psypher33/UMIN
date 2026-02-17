@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --guardedness #-}
 
-module UMIN.L03_Func.AlphaEmergenceMechanism where
+module UMIN.L03_Func.DimensionalPacking.AlphaEmergenceMechanism where
 
 -- =========================================================================
 -- Imports
@@ -22,7 +22,7 @@ open import Cubical.Data.FinData
 
 -- UMIN Core Imports
 -- (パスは貴兄の環境に合わせてください)
-open import UMIN.L03_Func.MagnitudeTheory
+open import UMIN.L02_Phys.MagnitudeTheory.Magnitude
 open import UMIN.L03_Func.ObjectiveFunction
 -- open import UMIN.L00_Core.Logic.Shadow_Core -- 必要に応じて有効化
 

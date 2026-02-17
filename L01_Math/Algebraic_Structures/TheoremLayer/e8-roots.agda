@@ -1,9 +1,10 @@
-{-# OPTIONS --cubical --guardedness #-}
+{-# OPTIONS --cubical --safe --guardedness #-}
 
 module UMIN.L01_Math.Algebraic_Structures.TheoremLayer.e8-roots where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Int      using (ℤ; pos; negsuc; _·_; _+_)
+open import Cubical.Data.Int using (ℤ; pos; negsuc; _+_; _·_)
+open import Cubical.Data.Int.Properties
 open import Cubical.Data.Sum      using (_⊎_; inl; inr)
 open import Cubical.Data.Sigma    using (Σ; _,_)
 
@@ -30,7 +31,6 @@ Div4 n = Σ ℤ (λ k → n ≡ pos 4 · k)
 ----------------------------------------------------------------
 -- 積の輸送ヘルパー
 
--- 修正版：k を明示的に指定せず、等式そのものを扱う
 solve :
   ∀ {a b x y} {target : ℤ}
   → (p : a ≡ x)
@@ -83,3 +83,13 @@ coord-mul-4 a b (inr (inr p)) _ =
   subst (λ t → t ≡ pos 4 · ₀)
         (sym (cong (λ x → x · b) p))
         refl
+
+----------------------------------------------------------------
+-- 4の倍数は加法で閉じる
+
+div4-plus : ∀ {x y : ℤ} → Div4 x → Div4 y → Div4 (x + y)
+div4-plus {x} {y} (kx , px) (ky , py) =
+  (kx + ky) ,
+  ( x + y                       ≡⟨ cong₂ _+_ px py ⟩
+    (pos 4 · kx) + (pos 4 · ky) ≡⟨ sym (·DistR+ (pos 4) kx ky) ⟩
+    pos 4 · (kx + ky)           ∎ )
