@@ -212,21 +212,182 @@ module FPSInstance {ℓ} (R : Ring ℓ) where
   -- cauchy-assoc を 3 ブロックに分解するための補助パス（関数レベル）
   ------------------------------------------------------------------------
   private
-    -- 🗡️ cauchy-assoc のパスが、3つのブロックの直列結合に等しいことを示す 2-path
-    --     （assoc-distrib / assoc-proof / assoc-block3 は
-    --       すでに CauchyAssoc.agda 内で定義済みのものをそのまま使う）
+    -- 🗡️ 分解証明（変更なし）
     assoc-distrib-path : ∀ (X Y Z : FormalPowerSeries R) →
       cauchy-assoc X Y Z ≡ (assoc-distrib X Y Z ∙ assoc-proof X Y Z ∙ assoc-block3 X Y Z)
     assoc-distrib-path X Y Z = refl
 
-    -- 🗡️ 変化のワープ（Step 2用：次なる主戦場！）
+    -- =======================================================================
+    -- 🌌 1. 中継宇宙の定義（二重和の階層構造を復元）
+    -- =======================================================================
+    tensor-int1 : (A B C : FormalPowerSeries R) → ℕ → Carrier
+    tensor-int1 A B C n = finiteSum R (λ i → finiteSum R (λ j → (A j * B (i ∸ j)) * C (n ∸ i)) i) n
+
+    morph-int1 : ∀ {A A' B B' C C'} (f : ∀ n → A n ≡ A' n) (g : ∀ n → B n ≡ B' n) (h : ∀ n → C n ≡ C' n) n →
+      tensor-int1 A B C n ≡ tensor-int1 A' B' C' n
+    morph-int1 f g h n = finiteSum-ext n _ _ (λ i _ → 
+      finiteSum-ext i _ _ (λ j _ → (f j *P g (i ∸ j)) *P h (n ∸ i)))
+
+    tensor-int2 : (A B C : FormalPowerSeries R) → ℕ → Carrier
+    tensor-int2 A B C n = finiteSum R (λ i → finiteSum R (λ j → A j * (B (i ∸ j) * C (n ∸ i))) i) n
+
+    morph-int2 : ∀ {A A' B B' C C'} (f : ∀ n → A n ≡ A' n) (g : ∀ n → B n ≡ B' n) (h : ∀ n → C n ≡ C' n) n →
+      tensor-int2 A B C n ≡ tensor-int2 A' B' C' n
+    morph-int2 f g h n = finiteSum-ext n _ _ (λ i _ → 
+      finiteSum-ext i _ _ (λ j _ → f j *P (g (i ∸ j) *P h (n ∸ i))))
+
+    -- =======================================================================
+    -- 🌌 2. 次元降下補題（関数パスを成分パスへ）
+    -- =======================================================================
+    assoc-applied : ∀ X Y Z n →
+      (λ i → (assoc-distrib X Y Z ∙ assoc-proof X Y Z ∙ assoc-block3 X Y Z) i n) ≡
+      ((λ i → assoc-distrib X Y Z i n) ∙ ((λ i → assoc-proof X Y Z i n) ∙ (λ i → assoc-block3 X Y Z i n)))
+    assoc-applied X Y Z n =
+      begin⇒_
+        (λ i → (assoc-distrib X Y Z ∙ (assoc-proof X Y Z ∙ assoc-block3 X Y Z)) i n)
+      ≡⟨ GL.cong-∙ (λ F → F n) (assoc-distrib X Y Z) (assoc-proof X Y Z ∙ assoc-block3 X Y Z) ⟩⇒
+        ((λ i → assoc-distrib X Y Z i n) ∙ (λ i → (assoc-proof X Y Z ∙ assoc-block3 X Y Z) i n))
+      ≡⟨ cong (λ p → (λ i → assoc-distrib X Y Z i n) ∙ p)
+              (GL.cong-∙ (λ F → F n) (assoc-proof X Y Z) (assoc-block3 X Y Z)) ⟩⇒
+        ((λ i → assoc-distrib X Y Z i n) ∙ ((λ i → assoc-proof X Y Z i n) ∙ (λ i → assoc-block3 X Y Z i n)))
+      ∎⇒
+
+    -- =======================================================================
+    -- 🌉 3. 境界を繋ぐ「高次ワープ・エンジン」（数珠繋ぎ eval 補題）
+    -- =======================================================================
+    
+    finiteSum-ext-eval : ∀ n (F : ℕ → I → Carrier) → 
+      (λ i → finiteSum-ext n (λ k → F k i0) (λ k → F k i1) (λ k _ i_idx → F k i_idx) i) ≡ (λ i → finiteSum R (λ k → F k i) n)
+    finiteSum-ext-eval zero F = refl
+    finiteSum-ext-eval (suc n) F j i = (finiteSum-ext-eval n F j i) + (F (suc n) i)
+
+    tensorHom-eval : ∀ {A A' B B'} (f : ∀ n → A n ≡ A' n) (g : ∀ n → B n ≡ B' n) n →
+      tensorHom-impl f g n ≡ (λ i → cauchy R (λ k → f k i) (λ k → g k i) n)
+    tensorHom-eval f g n = finiteSum-ext-eval n (λ k i → f k i * g (n ∸ k) i)
+
+    -- 💡 ポイント：2変数を直接書かず、パスの結合 (p1 ∙ p2) で構築する！
+    tensorHom-double-eval : ∀ {A A' B B' C C'} (f : ∀ n → A n ≡ A' n) (g : ∀ n → B n ≡ B' n) (h : ∀ n → C n ≡ C' n) n →
+      tensorHom-impl (tensorHom-impl f g) h n ≡ (λ i → cauchy R (λ k → cauchy R (λ j → f j i) (λ j → g j i) k) (λ k → h k i) n)
+    tensorHom-double-eval f g h n = p1 ∙ p2
+      where
+        p1 = finiteSum-ext-eval n (λ k i → tensorHom-impl f g k i * h (n ∸ k) i)
+        p2 = λ j i → finiteSum R (λ k → tensorHom-eval f g k j i * h (n ∸ k) i) n
+
+    morph-int1-eval : ∀ {A A' B B' C C'} (f : ∀ n → A n ≡ A' n) (g : ∀ n → B n ≡ B' n) (h : ∀ n → C n ≡ C' n) n →
+      morph-int1 f g h n ≡ (λ i → tensor-int1 (λ k → f k i) (λ k → g k i) (λ k → h k i) n)
+    morph-int1-eval f g h n = p1 ∙ p2
+      where
+        p1 = finiteSum-ext-eval n (λ k i → finiteSum-ext k _ _ (λ m _ i_idx → (f m i_idx * g (k ∸ m) i_idx) * h (n ∸ k) i_idx) i)
+        p2 = λ j i → finiteSum R (λ k → finiteSum-ext-eval k (λ m i_idx → (f m i_idx * g (k ∸ m) i_idx) * h (n ∸ k) i_idx) j i) n
+
+    morph-int2-eval : ∀ {A A' B B' C C'} (f : ∀ n → A n ≡ A' n) (g : ∀ n → B n ≡ B' n) (h : ∀ n → C n ≡ C' n) n →
+      morph-int2 f g h n ≡ (λ i → tensor-int2 (λ k → f k i) (λ k → g k i) (λ k → h k i) n)
+    morph-int2-eval f g h n = p1 ∙ p2
+      where
+        p1 = finiteSum-ext-eval n (λ k i → finiteSum-ext k _ _ (λ m _ i_idx → f m i_idx * (g (k ∸ m) i_idx * h (n ∸ k) i_idx)) i)
+        p2 = λ j i → finiteSum R (λ k → finiteSum-ext-eval k (λ m i_idx → f m i_idx * (g (k ∸ m) i_idx * h (n ∸ k) i_idx)) j i) n
+
+    tensorHom-right-eval : ∀ {A A' B B' C C'} (f : ∀ n → A n ≡ A' n) (g : ∀ n → B n ≡ B' n) (h : ∀ n → C n ≡ C' n) n →
+      tensorHom-impl f (tensorHom-impl g h) n ≡ (λ i → cauchy R (λ k → f k i) (λ k → cauchy R (λ j → g j i) (λ j → h j i) k) n)
+    tensorHom-right-eval f g h n = p1 ∙ p2
+      where
+        p1 = finiteSum-ext-eval n (λ k i → f k i * tensorHom-impl g h (n ∸ k) i)
+        p2 = λ j i → finiteSum R (λ k → f k i * tensorHom-eval g h (n ∸ k) j i) n
+
+    -- =======================================================================
+    -- 🚀 4. 独立補題の証明（完全接続：symの呪縛から解放！）
+    -- =======================================================================
+    warp-block1 : ∀ {A A' B B' C C'} (f : ∀ n → A n ≡ A' n) (g : ∀ n → B n ≡ B' n) (h : ∀ n → C n ≡ C' n) n →
+      (tensorHom-impl (tensorHom-impl f g) h n ∙ (λ i → assoc-distrib A' B' C' i n)) ≡
+      ((λ i → assoc-distrib A B C i n) ∙ morph-int1 f g h n)
+    warp-block1 {A} {A'} {B} {B'} {C} {C'} f g h n = 
+      begin⇒_
+        (tensorHom-impl (tensorHom-impl f g) h n ∙ (λ i → assoc-distrib A' B' C' i n))
+      ≡⟨ cong (_∙ (λ i → assoc-distrib A' B' C' i n)) (tensorHom-double-eval f g h n) ⟩⇒
+        ((λ i → cauchy R (λ k → cauchy R (λ j → f j i) (λ j → g j i) k) (λ k → h k i) n) ∙ (λ i → assoc-distrib A' B' C' i n))
+      -- 💡 ここ！ sym を外しました！
+      ≡⟨ Square→compPath (λ x y → assoc-distrib (λ k → f k x) (λ k → g k x) (λ k → h k x) y n) ⟩⇒
+        ((λ i → assoc-distrib A B C i n) ∙ (λ i → tensor-int1 (λ k → f k i) (λ k → g k i) (λ k → h k i) n))
+      ≡⟨ cong ((λ i → assoc-distrib A B C i n) ∙_) (sym (morph-int1-eval f g h n)) ⟩⇒
+        ((λ i → assoc-distrib A B C i n) ∙ morph-int1 f g h n)
+      ∎⇒
+
+    warp-block2 : ∀ {A A' B B' C C'} (f : ∀ n → A n ≡ A' n) (g : ∀ n → B n ≡ B' n) (h : ∀ n → C n ≡ C' n) n →
+      (morph-int1 f g h n ∙ (λ i → assoc-proof A' B' C' i n)) ≡
+      ((λ i → assoc-proof A B C i n) ∙ morph-int2 f g h n)
+    warp-block2 {A} {A'} {B} {B'} {C} {C'} f g h n = 
+      begin⇒_
+        (morph-int1 f g h n ∙ (λ i → assoc-proof A' B' C' i n))
+      ≡⟨ cong (_∙ (λ i → assoc-proof A' B' C' i n)) (morph-int1-eval f g h n) ⟩⇒
+        ((λ i → tensor-int1 (λ k → f k i) (λ k → g k i) (λ k → h k i) n) ∙ (λ i → assoc-proof A' B' C' i n))
+      -- 💡 ここも sym を外しました！
+      ≡⟨ Square→compPath (λ x y → assoc-proof (λ k → f k x) (λ k → g k x) (λ k → h k x) y n) ⟩⇒
+        ((λ i → assoc-proof A B C i n) ∙ (λ i → tensor-int2 (λ k → f k i) (λ k → g k i) (λ k → h k i) n))
+      ≡⟨ cong ((λ i → assoc-proof A B C i n) ∙_) (sym (morph-int2-eval f g h n)) ⟩⇒
+        ((λ i → assoc-proof A B C i n) ∙ morph-int2 f g h n)
+      ∎⇒
+
+    warp-block3 : ∀ {A A' B B' C C'} (f : ∀ n → A n ≡ A' n) (g : ∀ n → B n ≡ B' n) (h : ∀ n → C n ≡ C' n) n →
+      (morph-int2 f g h n ∙ (λ i → assoc-block3 A' B' C' i n)) ≡
+      ((λ i → assoc-block3 A B C i n) ∙ tensorHom-impl f (tensorHom-impl g h) n)
+    warp-block3 {A} {A'} {B} {B'} {C} {C'} f g h n = 
+      begin⇒_
+        (morph-int2 f g h n ∙ (λ i → assoc-block3 A' B' C' i n))
+      ≡⟨ cong (_∙ (λ i → assoc-block3 A' B' C' i n)) (morph-int2-eval f g h n) ⟩⇒
+        ((λ i → tensor-int2 (λ k → f k i) (λ k → g k i) (λ k → h k i) n) ∙ (λ i → assoc-block3 A' B' C' i n))
+      -- 💡 ここも sym を外しました！
+      ≡⟨ Square→compPath (λ x y → assoc-block3 (λ k → f k x) (λ k → g k x) (λ k → h k x) y n) ⟩⇒
+        ((λ i → assoc-block3 A B C i n) ∙ (λ i → cauchy R (λ k → f k i) (λ k → cauchy R (λ j → g j i) (λ j → h j i) k) n))
+      ≡⟨ cong ((λ i → assoc-block3 A B C i n) ∙_) (sym (tensorHom-right-eval f g h n)) ⟩⇒
+        ((λ i → assoc-block3 A B C i n) ∙ tensorHom-impl f (tensorHom-impl g h) n)
+      ∎⇒
+
+    -- =======================================================================
+    -- 🗡️ 5. 変化のワープ（主定理）
+    -- =======================================================================
     warp-double-sum : ∀ {A A' B B' C C' : FormalPowerSeries R}
       (f : ∀ n → A n ≡ A' n) (g : ∀ n → B n ≡ B' n) (h : ∀ n → C n ≡ C' n) n →
       (tensorHom-impl (tensorHom-impl f g) h n ∙ 
         (λ i → (assoc-distrib A' B' C' ∙ assoc-proof A' B' C' ∙ assoc-block3 A' B' C') i n)) ≡
       ((λ i → (assoc-distrib A B C ∙ assoc-proof A B C ∙ assoc-block3 A B C) i n) ∙ 
         tensorHom-impl f (tensorHom-impl g h) n)
-    warp-double-sum f g h n = {!!}
+    warp-double-sum {A} {A'} {B} {B'} {C} {C'} f g h n = 
+      begin⇒_
+        (tensorHom-impl (tensorHom-impl f g) h n ∙ 
+          (λ i → (assoc-distrib A' B' C' ∙ assoc-proof A' B' C' ∙ assoc-block3 A' B' C') i n))
+      ≡⟨ cong (λ φ → tensorHom-impl (tensorHom-impl f g) h n ∙ φ) (assoc-applied A' B' C' n) ⟩⇒
+        (tensorHom-impl (tensorHom-impl f g) h n ∙ (block1' ∙ (block2' ∙ block3')))
+      ≡⟨ GL.assoc (tensorHom-impl (tensorHom-impl f g) h n) block1' (block2' ∙ block3') ⟩⇒
+        ((tensorHom-impl (tensorHom-impl f g) h n ∙ block1') ∙ (block2' ∙ block3'))
+      ≡⟨ cong (λ φ → φ ∙ (block2' ∙ block3')) (warp-block1 f g h n) ⟩⇒
+        ((block1 ∙ morph-int1 f g h n) ∙ (block2' ∙ block3'))
+      ≡⟨ sym (GL.assoc block1 (morph-int1 f g h n) (block2' ∙ block3')) ⟩⇒
+        (block1 ∙ (morph-int1 f g h n ∙ (block2' ∙ block3')))
+      ≡⟨ cong (λ φ → block1 ∙ φ) (GL.assoc (morph-int1 f g h n) block2' block3') ⟩⇒
+        (block1 ∙ ((morph-int1 f g h n ∙ block2') ∙ block3'))
+      ≡⟨ cong (λ φ → block1 ∙ (φ ∙ block3')) (warp-block2 f g h n) ⟩⇒
+        (block1 ∙ ((block2 ∙ morph-int2 f g h n) ∙ block3'))
+      ≡⟨ cong (λ φ → block1 ∙ φ) (sym (GL.assoc block2 (morph-int2 f g h n) block3')) ⟩⇒
+        (block1 ∙ (block2 ∙ (morph-int2 f g h n ∙ block3')))
+      ≡⟨ cong (λ φ → block1 ∙ (block2 ∙ φ)) (warp-block3 f g h n) ⟩⇒
+        (block1 ∙ (block2 ∙ (block3 ∙ tensorHom-impl f (tensorHom-impl g h) n)))
+      ≡⟨ GL.assoc block1 block2 (block3 ∙ tensorHom-impl f (tensorHom-impl g h) n) ⟩⇒
+        ((block1 ∙ block2) ∙ (block3 ∙ tensorHom-impl f (tensorHom-impl g h) n))
+      ≡⟨ GL.assoc (block1 ∙ block2) block3 (tensorHom-impl f (tensorHom-impl g h) n) ⟩⇒
+        (((block1 ∙ block2) ∙ block3) ∙ tensorHom-impl f (tensorHom-impl g h) n)
+      ≡⟨ cong (λ φ → φ ∙ tensorHom-impl f (tensorHom-impl g h) n) (sym (GL.assoc block1 block2 block3)) ⟩⇒
+        ((block1 ∙ (block2 ∙ block3)) ∙ tensorHom-impl f (tensorHom-impl g h) n)
+      ≡⟨ cong (λ φ → φ ∙ tensorHom-impl f (tensorHom-impl g h) n) (sym (assoc-applied A B C n)) ⟩⇒
+        ((λ i → (assoc-distrib A B C ∙ assoc-proof A B C ∙ assoc-block3 A B C) i n) ∙ 
+        tensorHom-impl f (tensorHom-impl g h) n)
+      ∎⇒
+      where
+        block1 = λ i → assoc-distrib A B C i n
+        block1' = λ i → assoc-distrib A' B' C' i n
+        block2 = λ i → assoc-proof A B C i n
+        block2' = λ i → assoc-proof A' B' C' i n
+        block3 = λ i → assoc-block3 A B C i n
+        block3' = λ i → assoc-block3 A' B' C' i n
 
   ------------------------------------------------------------------------
   -- Φ の自然性（アソシエータと tensorHom の可換性）
