@@ -20,6 +20,7 @@ begin p = p
 record Ring (ℓ : Level) : Type (ℓ-suc ℓ) where
   field
     Carrier : Type ℓ
+    is-set  : isSet Carrier  -- 💡 【追加】この空間は穴のない「Set」であるという公理
     _+_ _*_ : Carrier → Carrier → Carrier
     0# 1# : Carrier
     +R-assoc : ∀ x y z → (x + y) + z ≡ x + (y + z)
