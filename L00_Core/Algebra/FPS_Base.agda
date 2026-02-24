@@ -7,9 +7,12 @@ module UMIN.L00_Core.Algebra.FPS_Base {ℓ} (R : Ring ℓ) where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.GroupoidLaws as GL
 open import Cubical.Foundations.Path using (Square→compPath)
-open import Cubical.Data.Nat using (ℕ)
+open import Cubical.Data.Nat using (ℕ; suc; _∸_)
+open import Cubical.Data.FinData using (Fin; toℕ)
 
+-- 🌌 UMIN エンジンのインポート
 open import UMIN.L00_Core.Logic.EquationEngine
+open import Cubical.Algebra.Ring.BigOps using (module Sum)
 
 -- Ring の構成要素を展開（名前衝突を避けるためrenaming）
 open RingStr (snd R) renaming
@@ -23,6 +26,8 @@ private
   Carrier : Type ℓ
   Carrier = fst R
 
+  open Sum R
+
 -- =======================================================================
 -- 1. 形式冪級数の基本定義
 -- =======================================================================
@@ -35,7 +40,7 @@ fps-ext : {A B : FormalPowerSeries}
 fps-ext = funExt
 
 -- =======================================================================
--- 2. 基本演算
+-- 2. 基本演算（ここに ⊗ を追加しました）
 -- =======================================================================
 
 -- 加法（点ごと）
@@ -45,6 +50,14 @@ _⊞_ : FormalPowerSeries → FormalPowerSeries → FormalPowerSeries
 -- スカラー倍
 _⊙_ : Carrier → FormalPowerSeries → FormalPowerSeries
 (r ⊙ A) n = r *R A n
+
+-- 【新規追加】乗法（Cauchy積）(A ⊗ B)_n = Σ_{k=0}^{n} A_k · B_{n-k}
+_⊗_ : FormalPowerSeries → FormalPowerSeries → FormalPowerSeries
+(A ⊗ B) n = ∑ (λ (k : Fin (suc n)) → A (toℕ k) *R B (n ∸ toℕ k)) 
+
+-- 演算子の優先順位を定義（⊗ を ⊞ より強く結びつくようにします）
+infixl 7 _⊗_
+infixl 6 _⊞_
 
 -- =======================================================================
 -- 3. パス演算（Interchange Laws の基盤）

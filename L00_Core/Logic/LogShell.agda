@@ -4,9 +4,8 @@ module UMIN.L00_Core.Logic.LogShell where
 open import Cubical.Foundations.Prelude
 
 -- 基本的な自然数ライブラリの読み込み
-open import Cubical.Data.Nat using (ℕ; _+_; _*_; _^_; zero; suc; _∸_)
-open import Cubical.Data.Nat.Order using (_≥_; _<_; _>_)
-open import Cubical.Data.Bool using (Bool; true; false; if_then_else_)
+open import Cubical.Data.Nat using (ℕ; _+_; _·_; _^_; zero; suc; _∸_; _<ᵇ_; _≡ᵇ_)
+open import Cubical.Data.Bool using (Bool; true; false; if_then_else_; not)
 open import Cubical.Data.Int using (ℤ; pos; negsuc)
 
 -- =========================================================
@@ -32,26 +31,33 @@ n / m = mkℚ (pos n) m
 record Theater : Type₁ where
   field
     Carrier : Type₀
-    zero : Carrier
-    one  : Carrier
+    zeroᴛ : Carrier
+    oneᴛ  : Carrier
     _⊕_  : Carrier → Carrier → Carrier
     _⊗_  : Carrier → Carrier → Carrier
     dist : Carrier → Carrier → ℕ
 
 -- [PrimeArithmetic] 素数演算の定義 (旧 IUT.Core.PrimeArithmetic)
+-- Bool 版の比較 (_≥_/_>_ は Cubical では Type を返すため if に使えない)
+_≥ᵇ_ : ℕ → ℕ → Bool
+m ≥ᵇ n = not (m <ᵇ n)
+
+_>ᵇ_ : ℕ → ℕ → Bool
+m >ᵇ n = n <ᵇ m
+
 -- 距離関数
 dist-impl : ℕ → ℕ → ℕ
-dist-impl m n = if m ≥ n then m ∸ n else n ∸ m
+dist-impl m n = if m ≥ᵇ n then m ∸ n else n ∸ m
 
 -- 簡易的な付値関数 (Mock)
 -- ※完全な実装は長くなるため、Log-Shellの動作に必要な主要な振る舞いを模倣します
 val2 : ℕ → ℕ
 val2 0 = 0
-val2 n = if ((n ∸ (2 * (n ∸ (n ∸ (n ∸ 1))))) ≡ 0) then 1 else 0 -- 簡易ロジック
+val2 n = if ((n ∸ (2 · (n ∸ (n ∸ (n ∸ 1))))) ≡ᵇ 0) then 1 else 0 -- 簡易ロジック
 
 val3 : ℕ → ℕ
 val3 0 = 0
-val3 n = if ((n ∸ (3 * (n ∸ (n ∸ (n ∸ 1))))) ≡ 0) then 1 else 0
+val3 n = if ((n ∸ (3 · (n ∸ (n ∸ (n ∸ 1))))) ≡ᵇ 0) then 1 else 0
 
 -- Alien Map (swap23)
 -- 2 <-> 3 の置換を行う簡易実装
@@ -105,11 +111,11 @@ compute-shell p q =
     indet = dist-impl lin ali
     lc = (val2 p) + (val3 p) + (val2 q) + (val3 q) + 1
     
-    str = if lin ≡ 0 
+    str = if lin ≡ᵇ 0 
           then (0 / 1)
           else (indet / lin)
           
-    cat = if indet > (2 * lin) then true else false
+    cat = if indet >ᵇ (2 · lin) then true else false
     
   in shell 
        p q 
