@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --guardedness #-}
+{-# OPTIONS --cubical --safe --guardedness #-}
 
 module UMIN.L01_Math.Octonions.Complete where
 
