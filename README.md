@@ -159,8 +159,8 @@ record SasakiAdjunction : Type₁ where
 ```
 
 Physical connections:
-- **Petz recovery maps** (Scandi–Alhambra, 2026) ↔ `s†` (Slice absorption)
-- **Instanton-mediated EP transitions** (Mukherjee et al., 2026) ↔ paths in `shake-space`
+- **KMS detailed balance** (Scandi–Alhambra, arXiv:2505.20064, 2025) ↔ `not-id` (Sasaki adjunction failure) — first-principles derivation of KMS master equation without rotating wave approximation
+- **Instanton events near dynamical freezing** (Mukherjee–Guo–Chowdhury, arXiv:2412.10498, 2024) ↔ non-perturbative paths in `shake-space` between quasi-stable fixed points
 - Complex time shift `iβ` ↔ imaginary unit forced by 7-fold algebraic necessity
 
 → Univalent realization of the **Connes–Rovelli thermal time hypothesis**.
@@ -191,21 +191,30 @@ ouroboros-key-theorem = refl  -- ★
 
 ---
 
-## 🗺️ UMIN as Rosetta Stone: DEF Theory ↔ UMIN
+## 🗺️ UMIN as Rosetta Stone: DEF ↔ UMIN — Hierarchical Connection
 
-> **"DEF theory (Sikora, 2026) maps the topological closure condition of the universe's geometry as hardware. UMIN Theory compiles the same condition from first principles of homological algebra as source code — and the compilation is now complete."**
+> **"DEF (Differential Expansion Framework, Sikora 2026) derives α from a continuous 4π phase-closure functional. UMIN derives the same integer from discrete homological algebra. Together they form a two-level foundation for α — discrete source code compiled into continuous hardware."**
 
-| DEF Theory (Sikora, 2026) | UMIN Theory (this work) |
-|--------------------------|------------------------|
-| Double-cover phase closure | `Tor₁^E₈ ≃ ℤ` (homological obstruction) |
-| Saturated circulation condition | `ext1-nontrivial` in TremblingCore |
-| Continuous geometric derivation | Discrete type-theoretic derivation |
-| α fixed by global topology | α fixed by E₈ module category |
-| ℤ/8ℤ → ℤ double-cover lift | E₈-lifting: rank(E₈) = 8 cancels denominator |
+### Hierarchical Connection between Continuous and Discrete Foundations
+
+| Layer | Framework | What it shows |
+|-------|-----------|---------------|
+| **Continuous** | DEF (Sikora, 2026) | α is the unique coefficient in closure functional **C[A,φ]** balancing 4π phase leakage of the n=1 circulatory mode |
+| **Discrete** | UMIN (this work) | α⁻¹ = 137 is forced by `gcd(136,112) = 8 = rank(E₈)`, independently of any continuous geometry |
+
+Neither is reducible to the other. UMIN provides the discrete algebraic necessity (the integer 137 is forced); DEF provides the continuous geometric realization (the closure functional selects precisely that integer).
+
+| DEF — Differential Expansion Framework (Sikora, 2026) | UMIN Theory (this work) |
+|-------------------------------------------------------|------------------------|
+| 4π double-cover phase-closure condition | `EP ≡ Core` (type-theoretic path closure) |
+| Closure functional C[A,φ] — phase leakage term | `Tor₁^E₈ ≃ ℤ` (homological obstruction) |
+| Saturated circulation of causal substrate current | `ext1-nontrivial` in TremblingCore |
+| Continuous variational derivation | Discrete type-theoretic derivation |
+| α fixed by n=1 ground state topology | α fixed by E₈ module category structure |
+| ℤ/8ℤ → ℤ double-cover lift | E₈-lifting: `rank(E₈) = 8` cancels denominator ✅ `refl` |
 | **Hardware: the physical universe** | **Source code: the logical necessity** |
 
-**Prediction**: The double-cover structure in DEF (ℤ/8ℤ → ℤ) is precisely the E₈-lifting proven in `FineStructureConstant.agda`, where `rank(E₈) = 8` is the denominator being resolved — verified by `refl`.
-
+**Bridge**: The 4π phase-closure in DEF ↔ `section = refl, retract = refl` in UMIN `isoToPath` — the cycle closes exactly because the homological generator is `pos 1`. The ℤ/8ℤ → ℤ lift in DEF is precisely the E₈-lifting proven in `FineStructureConstant.agda`.
 ---
 
 ## 📁 Repository Structure (UMIN v7.0)
@@ -348,10 +357,10 @@ python3 99_Meta/validate_alpha.py
 - Bergholtz–Budich–Kunst, *Rev. Mod. Phys.* **93** (2021)
 - Ashida–Gong–Ueda, *Adv. Phys.* **69** (2020)
 
-### Recent Connections (2026)
-- Scandi & Alhambra, "Petz recovery maps and thermalization" (2026) — *Theorem B*
-- Mukherjee et al., "Instanton-mediated EP transitions" (2026) — *Theorem B*
-- J. Sikora, "DEF theory and the fine-structure constant" (2026) — *Theorem C / Rosetta Stone*
+### Recent Connections
+- M. Scandi & Á. M. Alhambra, "Thermalization in open many-body systems and KMS detailed balance," arXiv:2505.20064 (2025) — *Theorem B: KMS detailed balance without RWA*
+- R. Mukherjee, H. Guo & D. Chowdhury, "Floquet-Thermalization via Instantons near Dynamical Freezing," arXiv:2412.10498 (2024) — *Theorem B: instanton events between fixed points*
+- J. Sikora, "First-Principles Derivation of the Fine-Structure Constant α in the Differential Expansion Framework (DEF)," imsn.co.uk (2026) — *Theorem C / Hierarchical Connection*
 
 ### Modular Theory & Thermal Time
 - A. Connes, C. Rovelli, *Class. Quantum Grav.* **11**, 2899 (1994)
@@ -387,8 +396,7 @@ Mathematical advisor: **T. Miyashita** (Exceptional Lie Groups)
 
 ## 🙏 Acknowledgements
 
-We acknowledge the profound mathematical foundations provided by T. Miyashita's work on exceptional Lie groups, which deeply guided the algebraic framing of this theory. 
-We thank John Sikora for inspiring correspondence on DEF theory. The Agda community for the invaluable development of the Cubical library.
+We acknowledge the profound mathematical foundations provided by T. Miyashita's work on exceptional Lie groups, which deeply guided the algebraic framing of this theory. We thank John Sikora for inspiring correspondence on DEF theory. The Agda community for the invaluable development of the Cubical library.
 
 ---
 
