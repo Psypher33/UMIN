@@ -306,9 +306,9 @@ Mathematical advisor: **T. Miyashita** (Exceptional Lie Groups)
 
 ## 🙏 Acknowledgements
 
-Mathematical advisor T. Miyashita for guidance on exceptional Lie theory.  
-We thank John Sikora for inspiring correspondence on DEF theory.  
-The Agda community for Cubical library development.
+We acknowledge the profound mathematical foundations provided by T. Miyashita's work on exceptional Lie groups, which deeply guided the algebraic framing of this theory.
+We thank John Sikora for inspiring correspondence on DEF theory.
+The Agda community for the invaluable development of the Cubical library.
 
 ---
 
