@@ -166,45 +166,67 @@ UMIN Theory stands in a complementary relationship with Sikora's **DEF (Dimensio
 
 ```
 UMIN/
-├── 00_Foundations/          # Logic, causality, information
+├── 00_Foundations/              # 変更不能な基礎：論理・因果律・情報理論
 │   ├── Logic/
 │   ├── Order_and_Causality/
 │   └── Information/
-├── 01_Mathematical_Backbones/  # Category theory, topology, algebra
+├── 01_Mathematical_Backbones/   # 物理解釈なしの純粋数学
 │   ├── Category_Theory/
 │   ├── Homotopy_and_Topology/
 │   └── Algebraic_Structures/
-│       └── E8.agda          ★ Core: E₈ decomposition
-├── 02_Physical_Semantics/   # Quantum theory, gravity
-├── 03_Translation_Functors/ ★ Heart of UMIN
-│   ├── MagnitudeTheory.agda
-│   ├── AlphaEmergenceMechanism.agda
-│   └── NonHermitianBridge.agda  (Project OUROBOROS target)
-├── 04_Wormhole_Theory/
-├── 05_Cosmology/
+│       └── E8.agda              ★ Core: E₈ decomposition (136+112=248)
+├── 02_Physical_Semantics/       # 数学構造への物理的意味付け
+├── 03_Translation_Functors/     ★ UMINの心臓部（翻訳・対応）
+│   ├── MagnitudeTheory.agda     # Leinster Magnitude + Künneth公式
+│   ├── AlphaEmergenceMechanism.agda  # α⁻¹=137 の全導出経路
+│   └── NonHermitianBridge.agda  # 🔮 Project OUROBOROS: EP≡Core 三柱証明
+├── 04_Wormhole_Theory/          # ワームホール現象論
+├── 05_Cosmology/                # 宇宙論・ハッブルテンション
 │   └── H0_Tension/
 │       └── UnifiedFormula_Detailed.agda
-├── 06_Phenomenology/
+├── 06_Phenomenology/            # 観測的検証・α変動
 │   └── AlphaVariation/
-└── 99_Meta/
+└── 99_Meta/                     # ロードマップ・メタ情報
 ```
 
 ---
 
 ## ✅ Verification Status
 
-| Module | Status |
-|--------|--------|
+**基本定数・型定義**
+
+| 検証内容 | Status |
+|---------|--------|
 | `gcd 136 112 ≡ 8` | ✅ `refl` |
 | `136 + 1 ≡ 137` | ✅ `refl` |
 | `HermitianCore + nonHermitianCone ≡ 248` | ✅ `refl` |
 | `grade-plus-one + grade-minus-one ≡ 112` | ✅ `refl` |
-| `TremblingCore` record type | ✅ Compiles `--safe --cubical` |
-| `SasakiAdjunction` record type | ✅ Compiles `--safe --cubical` |
-| Theorem A: TCN ↔ Tor₁≠0 | 📋 Postulate (Phase 1 target) |
-| Theorem B: KMS ↔ s·s†≠id | 📋 Postulate (Phase 1 target) |
-| Theorem C: E₈ Tor₁ lifting | 📋 Postulate (Phase 2 target) |
-| EP ≡ Core (OUROBOROS) | 🔮 Active research |
+| `TremblingCore` record type | ✅ Compiles `--cubical` |
+| `SasakiAdjunction` record type | ✅ Compiles `--cubical` |
+
+**NonHermitianBridge.agda — Project OUROBOROS（Phase 1–3 完了）**
+
+| 証明内容 | Status |
+|---------|--------|
+| 柱1: `ε²≡0` (Jordan: ε は冪零元) | ✅ `refl` |
+| 柱1: `isSetDualNum` (isSet× から構成) | ✅ 完全証明 |
+| 柱2: `d²≡0` (Magnitude: d² = 0) | ✅ `refl` |
+| 柱2: `eps-action-is-mul-eps` | ✅ `refl` |
+| 柱3: `p∘i≡0` (短完全列の合成がゼロ) | ✅ `refl` |
+| 柱3: `Exactness-at-DualNum` (Im(i) ≡ Ker(p)) | ✅ `isoToPath` 完成 |
+| 柱3: `SES-nonsplit` (非分裂性・6ステップ証明) | ✅ 完全証明 |
+| `Tor1-nonempty` (具体的証人: `pos 1`) | ✅ 完全証明 |
+| **`EP≡Core`** (EPState ≡ CoreState) | 📋 postulate → **Phase 4 最終目標** |
+
+**論文レベルの主張**
+
+| 主張 | Status |
+|------|--------|
+| Theorem A: TCN ↔ Tor₁≠0 | 📋 Postulate (Phase 1) |
+| Theorem A: YBE ↔ Snake naturality | 🔮 Conjecture |
+| Theorem B: KMS ↔ s·s†≠id | 📋 Postulate (Phase 1) |
+| Theorem C: E₈ Tor₁ lifting ℤ/8ℤ→ℤ | 📋 Postulate (Phase 2) |
+| DEF ↔ UMIN Rosetta Stone | 🔮 Conjecture |
 
 ---
 
