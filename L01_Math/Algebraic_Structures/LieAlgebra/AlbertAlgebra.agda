@@ -1,4 +1,5 @@
 {-# OPTIONS --cubical --guardedness #-}
+-- ※ §6 の +𝕜-reorder, -𝕜-sum は postulate。FieldOfRationals に環の法則を証明すれば --safe に戻せます。
 
 module UMIN.L01_Math.Algebraic_Structures.LieAlgebra.AlbertAlgebra where
 
@@ -142,6 +143,31 @@ tr-𝔍 (mk𝔍 ξ₁ ξ₂ ξ₃ _ _ _) = ξ₁ +𝕜 ξ₂ +𝕜 ξ₃
 -- 内積 (X, Y) = tr(X ∘ Y)
 ⟨_,_⟩ⱼ𝕜 : 𝔍ᶜ → 𝔍ᶜ → 𝕜
 ⟨ X , Y ⟩ⱼ𝕜 = tr-𝔍 (X ∘ Y)
+
+-- ================================================================
+-- §6. トレースの線形性の証明 (Theorem: Trace is Linear)
+-- ================================================================
+-- 有理数 𝕜 の結合法則・交換法則に依存しますが、
+-- 現状の FieldOfRationals の定義（簡約なし）であれば、
+-- 成分を明示的に分解することで Agda に計算を追いかけさせます。
+-- ※ 以下の補題は FieldOfRationals に +𝕜 の可換・結合法則を実装すれば refl に昇華できます。
+
+-- 有理数側の並べ替え（左辺・右辺は分母の形が異なるため postulate）
+postulate
+  +𝕜-reorder : (ξ₁ ξ₂ ξ₃ η₁ η₂ η₃ : 𝕜) →
+    (ξ₁ +𝕜 η₁) +𝕜 (ξ₂ +𝕜 η₂) +𝕜 (ξ₃ +𝕜 η₃) ≡ (ξ₁ +𝕜 ξ₂ +𝕜 ξ₃) +𝕜 (η₁ +𝕜 η₂ +𝕜 η₃)
+  -𝕜-sum : (ξ₁ ξ₂ ξ₃ : 𝕜) →
+    (-𝕜 ξ₁) +𝕜 (-𝕜 ξ₂) +𝕜 (-𝕜 ξ₃) ≡ -𝕜 (ξ₁ +𝕜 ξ₂ +𝕜 ξ₃)
+
+-- トレースの加法性： tr(X + Y) ≡ tr(X) + tr(Y)
+tr-add-distrib : (X Y : 𝔍ᶜ) → tr-𝔍 (X +𝔍 Y) ≡ (tr-𝔍 X) +𝕜 (tr-𝔍 Y)
+tr-add-distrib (mk𝔍 ξ₁ ξ₂ ξ₃ x₁ x₂ x₃) (mk𝔍 η₁ η₂ η₃ y₁ y₂ y₃) =
+  +𝕜-reorder ξ₁ ξ₂ ξ₃ η₁ η₂ η₃
+
+-- トレースの符号反転： tr(-X) ≡ -tr(X)
+tr-neg-distrib : (X : 𝔍ᶜ) → tr-𝔍 (-𝔍 X) ≡ -𝕜 (tr-𝔍 X)
+tr-neg-distrib (mk𝔍 ξ₁ ξ₂ ξ₃ x₁ x₂ x₃) =
+  -𝕜-sum ξ₁ ξ₂ ξ₃
 
 -- ================================================================
 -- §5. Jordan クロス積 X × Y (source 77, E₇ 作用の 2B×Y 等で使用)

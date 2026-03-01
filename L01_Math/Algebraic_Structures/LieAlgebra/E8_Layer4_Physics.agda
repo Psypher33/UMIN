@@ -5,11 +5,10 @@ module UMIN.L01_Math.Algebraic_Structures.LieAlgebra.E8_Layer4_Physics where
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat using (ℕ; zero; suc; _+_; _·_)
 
--- E7Interface からスカラー関連をインポート
-open import UMIN.L01_Math.Algebraic_Structures.LieAlgebra.E7Interface
-  using (E7; 𝔓ᶜ; mk𝔓; 𝕜; 𝕜-zero; 𝕜-one; _+𝕜_; -𝕜_; ratEmbed; posRat)
-import UMIN.L01_Math.Algebraic_Structures.LieAlgebra.AlbertAlgebra as AlbertAlg
-open AlbertAlg using (τ-𝔍; λ-𝔍; τ-𝔍-inv; λ-𝔍-inv; τ-λ-𝔍-comm)
+-- E7Interface からスカラー・E7・Pᶜ の変換をインポート
+import UMIN.L01_Math.Algebraic_Structures.LieAlgebra.E7Interface as E7Int
+open E7Int using (E7; 𝔓ᶜ; mk𝔓; 𝕜; 𝕜-zero; 𝕜-one; _+𝕜_; -𝕜_; ratEmbed; posRat;
+  τ-E7; λ-E7; τ-E7-inv; λ-E7-inv; τ-λ-E7-comm; τ-P; λ-P; τ-P-inv; λ-P-inv; τ-λ-P-comm)
 
 -- Layer1 (土台) をインポート
 open import UMIN.L01_Math.Algebraic_Structures.LieAlgebra.E8_Layer1_Base
@@ -26,18 +25,8 @@ open import UMIN.L01_Math.Algebraic_Structures.LieAlgebra.E8_Layer3_Graded
 -- ================================================================
 --  LAYER 4.1 : Compact Real Form & Hermitian Form (理論武装版)
 -- ================================================================
+-- スカラー 𝕜 に関する定義と、E8 に関する具体的な証明(τ-E8 等)だけを残す
 
--- 下位層（E7 のみ！）の変換を postulate として定義
-postulate
-  τ-E7 : E7 → E7
-  λ-E7 : E7 → E7
-
-  τ-E7-inv : (Φ : E7) → τ-E7 (τ-E7 Φ) ≡ Φ
-  λ-E7-inv : (Φ : E7) → λ-E7 (λ-E7 Φ) ≡ Φ
-  τ-λ-E7-comm : (Φ : E7) → τ-E7 (λ-E7 Φ) ≡ λ-E7 (τ-E7 Φ)
-
--- 💥 撃破済！ 有理数 𝕜 に対する共役と対合の実装
--- (ここから下はそのまま)
 τ-𝕜 : 𝕜 → 𝕜
 τ-𝕜 k = k
 
@@ -52,34 +41,6 @@ postulate
 
 τ-λ-𝕜-comm : (k : 𝕜) → τ-𝕜 (λ-𝕜 k) ≡ λ-𝕜 (τ-𝕜 k)
 τ-λ-𝕜-comm k = refl
-
--- ================================================================
--- 🚀 Pᶜ 上の変換の「具体的な実装」と「証明」
--- ================================================================
-
--- 💥 撃破！ Pᶜ 空間の共役と対合の完全実装
-τ-P : Pᶜ → Pᶜ
-τ-P (mk𝔓 X Y ξ η) = mk𝔓 (τ-𝔍 X) (τ-𝔍 Y) (τ-𝕜 ξ) (τ-𝕜 η)
-
-λ-P : Pᶜ → Pᶜ
-λ-P (mk𝔓 X Y ξ η) = mk𝔓 (λ-𝔍 X) (λ-𝔍 Y) (λ-𝕜 ξ) (λ-𝕜 η)
-
--- 証明用ヘルパー関数: mk𝔓 の全4成分が等しければ全体も等しい
-private
-  cong4-mk𝔓 : ∀ {X X' Y Y' ξ ξ' η η'}
-    → X ≡ X' → Y ≡ Y' → ξ ≡ ξ' → η ≡ η'
-    → mk𝔓 X Y ξ η ≡ mk𝔓 X' Y' ξ' η'
-  cong4-mk𝔓 p1 p2 p3 p4 i = mk𝔓 (p1 i) (p2 i) (p3 i) (p4 i)
-
--- 💥 撃破！ Pᶜ の対合の完全な証明
-τ-P-inv : (P : Pᶜ) → τ-P (τ-P P) ≡ P
-τ-P-inv (mk𝔓 X Y ξ η) = cong4-mk𝔓 (τ-𝔍-inv X) (τ-𝔍-inv Y) (τ-𝕜-inv ξ) (τ-𝕜-inv η)
-
-λ-P-inv : (P : Pᶜ) → λ-P (λ-P P) ≡ P
-λ-P-inv (mk𝔓 X Y ξ η) = cong4-mk𝔓 (λ-𝔍-inv X) (λ-𝔍-inv Y) (λ-𝕜-inv ξ) (λ-𝕜-inv η)
-
-τ-λ-P-comm : (P : Pᶜ) → τ-P (λ-P P) ≡ λ-P (τ-P P)
-τ-λ-P-comm (mk𝔓 X Y ξ η) = cong4-mk𝔓 (τ-λ-𝔍-comm X) (τ-λ-𝔍-comm Y) (τ-λ-𝕜-comm ξ) (τ-λ-𝕜-comm η)
 
 -- ================================================================
 -- 🚀 E8 上の変換の「具体的な実装」と「証明」
