@@ -20,14 +20,14 @@ private
 -- =======================================================================
 -- 2. 次元降下補題（パスの構築）
 -- =======================================================================
--- 結合律の証を引数に取り、その下で α-path を定義
-module _ (⊗-assoc : (A B C : FormalPowerSeries) → (A ⊗ B) ⊗ C ≡ A ⊗ (B ⊗ C)) where
+-- 結合律の証を引数に取り、その下で α-path を定義（外部から適用するため名前付きモジュール）
+module WithAssoc (⊗-assoc : (A B C : FormalPowerSeries) → (A ⊗ B) ⊗ C ≡ A ⊗ (B ⊗ C)) where
 
   α-path : (A B C : FormalPowerSeries) → (A ⊗ B) ⊗ C ≡ A ⊗ (B ⊗ C)
   α-path = ⊗-assoc
 
-  -- 五角形コヒーレンスは α-path を用いた型で受け取る（abstract との整合のため）
-  module _ (pentagon-coh : ∀ A B C D →
+  -- 五角形コヒーレンスは α-path を用いた型で受け取る（abstract との整合のため・外部適用用に名前付き）
+  module WithPentagonCoh (pentagon-coh : ∀ A B C D →
       (cong (_⊗ D) (α-path A B C) ∙ α-path A (B ⊗ C) D ∙ cong (A ⊗_) (α-path B C D))
         ≡ (α-path (A ⊗ B) C D ∙ α-path A B (C ⊗ D))) where
 
