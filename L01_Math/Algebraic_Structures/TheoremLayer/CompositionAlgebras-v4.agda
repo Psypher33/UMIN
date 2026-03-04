@@ -1,7 +1,7 @@
-{-# OPTIONS --cubical --guardedness #-}
+{-# OPTIONS --cubical --guardedness --safe #-}
 
 -- ================================================================
--- Composition Algebra — Definitive Version (v4)
+-- Composition Algebra — Definitive Version (v4) — Safe
 -- ================================================================
 
 module UMIN.L01_Math.Algebraic_Structures.TheoremLayer.CompositionAlgebras-v4 where
@@ -12,34 +12,35 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma
 
 -- ================================================================
--- Part 1: ℚ postulates
+-- Part 1: スカラー体（ℚ）を record で受け取る（postulate 廃止）
 -- ================================================================
 
-postulate
-  ℚ : Type
-  isSetℚ : isSet ℚ
-  0ℚ 1ℚ 2ℚ 4ℚ : ℚ
-  _+q_ _*q_ _-q_ _/q_ : ℚ → ℚ → ℚ
-  -q_ : ℚ → ℚ
+record CompAlgScalarField : Type₁ where
+  field
+    ℚ     : Type
+    isSetℚ : isSet ℚ
+    0ℚ 1ℚ 2ℚ 4ℚ : ℚ
+    _+q_ _*q_ _-q_ _/q_ : ℚ → ℚ → ℚ
+    -q_   : ℚ → ℚ
 
-  +q-comm    : ∀ a b → (a +q b) ≡ (b +q a)
-  +q-assoc   : ∀ a b c → ((a +q b) +q c) ≡ (a +q (b +q c))
-  +q-0       : ∀ a → (a +q 0ℚ) ≡ a
-  +q-inv     : ∀ a → (a +q (-q a)) ≡ 0ℚ
-  *q-comm    : ∀ a b → (a *q b) ≡ (b *q a)
-  *q-assoc   : ∀ a b c → ((a *q b) *q c) ≡ (a *q (b *q c))
-  *q-1       : ∀ a → (a *q 1ℚ) ≡ a
-  *q-0       : ∀ a → (a *q 0ℚ) ≡ 0ℚ
-  *q-dist-l  : ∀ a b c → (a *q (b +q c)) ≡ ((a *q b) +q (a *q c))
-  /q-cancel  : ∀ a → ((a +q a) /q 2ℚ) ≡ a
-  /q-dist    : ∀ a b → ((a +q b) /q 2ℚ) ≡ ((a /q 2ℚ) +q (b /q 2ℚ))
-  /q-0       : (0ℚ /q 2ℚ) ≡ 0ℚ
-  -q-cancel  : ∀ a → (a -q a) ≡ 0ℚ
-  -q-sub     : ∀ a b → (a -q b) ≡ (a +q (-q b))
-  2ℚ-def     : 2ℚ ≡ (1ℚ +q 1ℚ)
+    +q-comm    : ∀ a b → (a +q b) ≡ (b +q a)
+    +q-assoc   : ∀ a b c → ((a +q b) +q c) ≡ (a +q (b +q c))
+    +q-0       : ∀ a → (a +q 0ℚ) ≡ a
+    +q-inv     : ∀ a → (a +q (-q a)) ≡ 0ℚ
+    *q-comm    : ∀ a b → (a *q b) ≡ (b *q a)
+    *q-assoc   : ∀ a b c → ((a *q b) *q c) ≡ (a *q (b *q c))
+    *q-1       : ∀ a → (a *q 1ℚ) ≡ a
+    *q-0       : ∀ a → (a *q 0ℚ) ≡ 0ℚ
+    *q-dist-l  : ∀ a b c → (a *q (b +q c)) ≡ ((a *q b) +q (a *q c))
+    /q-cancel  : ∀ a → ((a +q a) /q 2ℚ) ≡ a
+    /q-dist    : ∀ a b → ((a +q b) /q 2ℚ) ≡ ((a /q 2ℚ) +q (b /q 2ℚ))
+    /q-0       : (0ℚ /q 2ℚ) ≡ 0ℚ
+    -q-cancel  : ∀ a → (a -q a) ≡ 0ℚ
+    -q-sub     : ∀ a b → (a -q b) ≡ (a +q (-q b))
+    2ℚ-def     : 2ℚ ≡ (1ℚ +q 1ℚ)
 
-infixl 6 _+q_ _-q_
-infixl 7 _*q_ _/q_
+  infixl 6 _+q_ _-q_
+  infixl 7 _*q_ _/q_
 
 -- ================================================================
 -- Part 2: AdditiveGroup
@@ -58,10 +59,12 @@ record AdditiveGroup (A : Type) : Type where
   x -A y = x +A (-A y)
 
 -- ================================================================
--- Part 3 & 4: CompositionAlgebra record
+-- Part 3 & 4: CompositionAlgebra record（𝔽 を引数に、dot 補題はフィールド）
 -- ================================================================
 
-record CompositionAlgebra (A : Type) : Type₁ where
+record CompositionAlgebra (𝔽 : CompAlgScalarField) (A : Type) : Type₁ where
+  open CompAlgScalarField 𝔽
+
   field
     isSetA   : isSet A
     addGroup : AdditiveGroup A
@@ -102,20 +105,18 @@ record CompositionAlgebra (A : Type) : Type₁ where
   dot : A → A → ℚ
   dot x y = (((norm (x +A y)) -q (norm x)) -q (norm y)) /q 2ℚ
 
-  postulate
+  field
     dot-sym : ∀ x y → dot x y ≡ dot y x
     dot-zero-r : ∀ x → dot x 0A ≡ 0ℚ
-  
-  dot-zero-l : ∀ x → dot 0A x ≡ 0ℚ
-  dot-zero-l x = dot-sym 0A x ∙ dot-zero-r x
-
-  postulate
     dot-add-l : ∀ x y z → dot (x +A y) z ≡ ((dot x z) +q (dot y z))
     dot-scalar-l : ∀ (r : ℚ) (x y : A) →
       dot (mul (embed r) x) y ≡ (r *q (dot x y))
     dot-neg-l : ∀ x y → dot (-A x) y ≡ (-q (dot x y))
     dot-unit-unit : dot unit unit ≡ 1ℚ
     scalar-embed : ∀ r → dot (embed r) unit ≡ r
+
+  dot-zero-l : ∀ x → dot 0A x ≡ 0ℚ
+  dot-zero-l x = dot-sym 0A x ∙ dot-zero-r x
 
   dot-add-r : ∀ x y z → dot x (y +A z) ≡ ((dot x y) +q (dot x z))
   dot-add-r x y z =
@@ -133,7 +134,7 @@ record CompositionAlgebra (A : Type) : Type₁ where
   im x = x -A embed (scalar x)
 
   im-scalar-zero : ∀ x → scalar (im x) ≡ 0ℚ
-  im-scalar-zero x = 
+  im-scalar-zero x =
     dot-add-l x (-A embed (scalar x)) unit
     ∙ cong (_+q (dot (-A embed (scalar x)) unit)) (refl {x = scalar x})
     ∙ cong (scalar x +q_) (dot-neg-l (embed (scalar x)) unit ∙ cong -q_ (scalar-embed (scalar x)))
@@ -152,10 +153,11 @@ record CompositionAlgebra (A : Type) : Type₁ where
   φ u v (w , pw) = dot (fst (cross u v)) w
 
 -- ================================================================
--- Part 5, 6, 7
+-- Part 5, 6, 7: G₂ と CD は 𝔽 付きでパラメータ化
 -- ================================================================
 
-module G₂-Definition (A : Type) (Alg : CompositionAlgebra A) where
+module G₂-Definition (𝔽 : CompAlgScalarField) (A : Type) (Alg : CompositionAlgebra 𝔽 A) where
+  open CompAlgScalarField 𝔽
   open CompositionAlgebra Alg
   record G₂-Element : Type₁ where
     field
@@ -163,7 +165,8 @@ module G₂-Definition (A : Type) (Alg : CompositionAlgebra A) where
       f-equiv : isEquiv f
       preserves-φ : ∀ u v w → φ (f u) (f v) (f w) ≡ φ u v w
 
-module CD-Step (A : Type) (Alg : CompositionAlgebra A) where
+module CD-Step (𝔽 : CompAlgScalarField) (A : Type) (Alg : CompositionAlgebra 𝔽 A) where
+  open CompAlgScalarField 𝔽
   open CompositionAlgebra Alg
   CD : Type
   CD = A × A
@@ -174,24 +177,29 @@ module CD-Step (A : Type) (Alg : CompositionAlgebra A) where
   norm-CD : CD → ℚ
   norm-CD (a , b) = ((norm a) +q (norm b))
 
-postulate ℚ-CompAlg : CompositionAlgebra ℚ
+-- ================================================================
+-- 実例は postulate 廃止：塔を record で受け取る
+-- ================================================================
 
--- ★ 名前の衝突を避けるためにモジュールの使いかたを修正
-module Octonions where
-  -- 1. ℂ を作るための CD
-  module Step1 = CD-Step ℚ ℚ-CompAlg
-  ℂ : Type
-  ℂ = Step1.CD
-  postulate ℂ-CompAlg : CompositionAlgebra ℂ
+record OctonionTower (𝔽 : CompAlgScalarField) : Type₁ where
+  open CompAlgScalarField 𝔽
+  field
+    ℚ-alg : CompositionAlgebra 𝔽 ℚ
+    ℂ : Type
+    ℂ-alg : CompositionAlgebra 𝔽 ℂ
+    ℍ : Type
+    ℍ-alg : CompositionAlgebra 𝔽 ℍ
+    𝕆 : Type
+    𝕆-alg : CompositionAlgebra 𝔽 𝕆
 
-  -- 2. ℍ を作るための CD
-  module Step2 = CD-Step ℂ ℂ-CompAlg
-  ℍ : Type
-  ℍ = Step2.CD
-  postulate ℍ-CompAlg : CompositionAlgebra ℍ
+-- 従来の Octonions 相当を使う場合は、OctonionTower の値を別ファイルで
+-- 構成（または公理として渡す）して open してください。
 
-  -- 3. 𝕆 を作るための CD
-  module Step3 = CD-Step ℍ ℍ-CompAlg
-  𝕆 : Type
-  𝕆 = Step3.CD
-  postulate 𝕆-CompAlg : CompositionAlgebra 𝕆
+module Octonions (𝔽 : CompAlgScalarField) (Tower : OctonionTower 𝔽) where
+  open CompAlgScalarField 𝔽
+  open OctonionTower Tower
+  module ℚStep = CD-Step 𝔽 ℚ ℚ-alg
+  -- ℚStep.CD と ℂ が一致するような Tower を渡す想定
+  module ℂStep = CD-Step 𝔽 ℂ ℂ-alg
+  module ℍStep = CD-Step 𝔽 ℍ ℍ-alg
+  module 𝕆Step = CD-Step 𝔽 𝕆 𝕆-alg

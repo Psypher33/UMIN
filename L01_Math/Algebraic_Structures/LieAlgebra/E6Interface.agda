@@ -6,8 +6,15 @@ open import Cubical.Foundations.Prelude
 open import UMIN.L01_Math.Algebraic_Structures.LieAlgebra.FieldOfRationals
   using (𝕜; 𝕜-zero; 𝕜-one; _+𝕜_; _·𝕜_; -𝕜_; ratEmbed; posRat; 𝕜-zero-add-inv)
 open import UMIN.L01_Math.Algebraic_Structures.LieAlgebra.AlbertAlgebra
-  using (𝔍ᶜ; _∘_; tr-𝔍; _+𝔍_; -𝔍_; _⊛𝔍_; mk𝔍; 𝕆-zero; ⟨_,_⟩ⱼ𝕜;
-    tr-add-distrib; tr-neg-distrib) -- 💥 ここでインポート！
+  using (𝔍ᶜ; _∘_; tr-𝔍; _+𝔍_; -𝔍_; _⊛𝔍_; mk𝔍; 𝕆-zero; ⟨_,_⟩ⱼ𝕜)
+
+-- ================================================================
+-- §0. Albert 代数トレースの線形性（ここで仮定）
+-- ================================================================
+
+postulate
+  tr-add-distrib : (X Y : 𝔍ᶜ) → tr-𝔍 (X +𝔍 Y) ≡ (tr-𝔍 X) +𝕜 (tr-𝔍 Y)
+  tr-neg-distrib : (X : 𝔍ᶜ) → tr-𝔍 (-𝔍 X) ≡ -𝕜 (tr-𝔍 X)
 
 -- ================================================================
 -- §1. F4 Lie環 (理論武装版：関数としての実装)
