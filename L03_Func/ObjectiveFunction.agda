@@ -32,9 +32,9 @@ module ObjectiveOps (n : ℕ) where
   open MagnitudeOps n
 
   postulate
-    determinant : Matrix n → Float
+    determinant : FMatrix n → Float
 
-  szpiro-penalty : Matrix n → Float
+  szpiro-penalty : FMatrix n → Float
   szpiro-penalty Z = 
     let 
       det = determinant Z
@@ -44,10 +44,10 @@ module ObjectiveOps (n : ℕ) where
        then large-penalty 
        else (1.0 /f det)
 
-  objective-function : Matrix n → (λ-coeff : Float) → Float
+  objective-function : FMatrix n → (λ-coeff : Float) → Float
   objective-function Z λ-coeff =
     let 
-      mag  = leinster-magnitude Z
+      mag  = leinster-magnitudeF Z
       dist = normalized-distortion Z
       pen  = (szpiro-penalty Z) *f 0.5
       complexity = (mag *f pow dist λ-coeff)

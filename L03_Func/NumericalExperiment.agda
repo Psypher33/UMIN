@@ -10,7 +10,7 @@ open import Cubical.Data.Vec
 -- 理論モジュールをインポート
 open import UMIN.L03_Func.MagnitudeTheory
 open import UMIN.L03_Func.ObjectiveFunction
-open import UMIN.L03_Func.AlphaEmergenceMechanism
+open import UMIN.L03_Func.DimensionalPacking.AlphaEmergenceMechanism
 
 -- =========================================================================
 -- 数値実験：2x2 行列による Alpha の試算
@@ -28,7 +28,7 @@ open AlphaLogic n 0.0
 -- 1. テスト用の具体的な行列（時空の断片）
 --    計算された黄金値: 0.007617647 を非対角成分に設定
 --    これが「我々の宇宙」を形成する絡み合いの強さです
-test-matrix : Matrix n
+test-matrix : FMatrix n
 test-matrix = (1.0 ∷ 0.007617647 ∷ []) ∷ (0.007617647 ∷ 1.0 ∷ []) ∷ []
 
 -- 2. 計算実行

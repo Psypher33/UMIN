@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --guardedness #-}
 
-module UMIN.L01_Math.Algebraic_Structures.LogShell where
+module UMIN.L03_Func.DimensionalPacking.LogShell where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -41,7 +41,7 @@ private
 module InverseOps (n : ℕ) where
   open MagnitudeOps n
 
-  inverse-op-2 : Matrix 2 → Matrix 2
+  inverse-op-2 : FMatrix 2 → FMatrix 2
   inverse-op-2 M =
     let 
       a  = lookup fzero (lookup fzero M)
@@ -65,17 +65,17 @@ record LogShell (n : ℕ) : Type₀ where
   open ObjectiveOps n
 
   field
-    shell-matrix : Matrix n
+    shell-matrix : FMatrix n
     shell-magnitude : Float
     
     -- 【修正1】使用する逆行列演算をフィールドとして持つ（依存性の注入）
-    inverse-func : Matrix n → Matrix n
+    inverse-func : FMatrix n → FMatrix n
 
     -- 【修正2】整合性チェックには、注入された inverse-func を使用する
-    magnitude-consistency : shell-magnitude ≡ matrix-sum (inverse-func shell-matrix)
+    magnitude-consistency : shell-magnitude ≡ fmatrix-sum (inverse-func shell-matrix)
     
-    internal-shadow : PropTrunc₀ (Sigma (Matrix n) (λ Z → 
-                                 Sigma (Matrix n) (λ Z' → 
+    internal-shadow : PropTrunc₀ (Sigma (FMatrix n) (λ Z → 
+                                 Sigma (FMatrix n) (λ Z' → 
                                    Times (Z ≡ Z' → ⊥) (normalized-distortion Z ≡ normalized-distortion Z'))))
 
     is-heterotic-rank : (n ≡ 16) → Unit
@@ -83,7 +83,7 @@ record LogShell (n : ℕ) : Type₀ where
     optimal-objective : Float
     objective-consistency : optimal-objective ≡ objective-function shell-matrix 1.2
 
-    is-well-defined-distortion : (Z1 Z2 : Matrix n) → 
+    is-well-defined-distortion : (Z1 Z2 : FMatrix n) → 
       (absf (normalized-distortion Z1 -f normalized-distortion Z2) <f 1.0e-10) ≡ true →
       normalized-distortion Z1 ≡ normalized-distortion Z2
 
@@ -91,13 +91,15 @@ record LogShell (n : ℕ) : Type₀ where
 -- 異星的通信構造の拡張版
 -- =========================================================================
 record LogShellLink (n : ℕ) (L1 L2 : LogShell n) : Type₀ where
+  open MagnitudeOps n
+
   field
     volume-preservation : LogShell.shell-magnitude L1 ≡ LogShell.shell-magnitude L2
     is-alien : (LogShell.shell-matrix L1 ≡ LogShell.shell-matrix L2) → ⊥
 
     alien-reconstruction : 
-      PropTrunc₀ (Sigma (Matrix n → Matrix n) (λ f → 
-        (∀ x → MagnitudeOps.normalized-distortion n (f x) ≡ MagnitudeOps.normalized-distortion n x)))
+      PropTrunc₀ (Sigma (FMatrix n → FMatrix n) (λ f → 
+        (∀ x → normalized-distortion (f x) ≡ normalized-distortion x)))
 
 -- =========================================================================
 -- ヘルパー：n=16 特化版
@@ -113,7 +115,7 @@ module Example2 where
   open InverseOps 2
   open ObjectiveOps 2
 
-  shadow-kernel : Sigma (Matrix 2) (λ Z → Sigma (Matrix 2) (λ Z' → Times (Z ≡ Z' → ⊥) (normalized-distortion Z ≡ normalized-distortion Z')))
+  shadow-kernel : Sigma (FMatrix 2) (λ Z → Sigma (FMatrix 2) (λ Z' → Times (Z ≡ Z' → ⊥) (normalized-distortion Z ≡ normalized-distortion Z')))
   shadow-kernel = 
     let
       M1 = ((1.0 ∷ 0.0 ∷ []) ∷ (0.0 ∷ 1.0 ∷ []) ∷ [])
@@ -125,7 +127,7 @@ module Example2 where
   example-log-shell-2 : LogShell 2
   example-log-shell-2 = record
     { shell-matrix          = test-matrix
-    ; shell-magnitude       = leinster-magnitude test-matrix
+    ; shell-magnitude       = leinster-magnitudeF test-matrix
     
     -- 【修正3】ここで明示的に inverse-op-2 を指定します
     ; inverse-func          = inverse-op-2
@@ -141,10 +143,10 @@ module Example2 where
     ; is-well-defined-distortion = λ Z1 Z2 _ → well-defined-proof Z1 Z2
     }
     where
-      test-matrix : Matrix 2
+      test-matrix : FMatrix 2
       test-matrix = (1.0 ∷ (0.007617647 ∷ [])) ∷ ((0.007617647 ∷ (1.0 ∷ [])) ∷ [])
 
       -- 【修正4】postulateも inverse-op-2 を使うことで、レコードの期待型と完全に一致させます
-      postulate postulated-consistency : leinster-magnitude test-matrix ≡ matrix-sum (inverse-op-2 test-matrix)
+      postulate postulated-consistency : leinster-magnitudeF test-matrix ≡ fmatrix-sum (inverse-op-2 test-matrix)
       
-      postulate well-defined-proof : (Z1 Z2 : Matrix 2) → normalized-distortion Z1 ≡ normalized-distortion Z2
+      postulate well-defined-proof : (Z1 Z2 : FMatrix 2) → normalized-distortion Z1 ≡ normalized-distortion Z2

@@ -20,8 +20,6 @@ open import Agda.Builtin.Float public renaming (primNatToFloat to natToFloat)
 open import Cubical.Data.Nat using (ℕ)
 open import Cubical.Data.FinData
 
--- UMIN Core Imports
--- (パスは貴兄の環境に合わせてください)
 open import UMIN.L02_Phys.MagnitudeTheory.Magnitude
 open import UMIN.L03_Func.ObjectiveFunction
 -- open import UMIN.L00_Core.Logic.Shadow_Core -- 必要に応じて有効化
@@ -83,7 +81,7 @@ module AlphaLogic (n : ℕ) (fixed-lambda : Float) where
 
   -- 2. Equivalence Relation
   -- Type₀ を明示的に返すことでレベル不整合を回避
-  _≈_ : Matrix n → Matrix n → Type₀
+  _≈_ : FMatrix n → FMatrix n → Type₀
   M1 ≈ M2 = 
     let d1 = normalized-distortion M1
         d2 = normalized-distortion M2
@@ -91,7 +89,7 @@ module AlphaLogic (n : ℕ) (fixed-lambda : Float) where
 
   -- 商空間の定義
   MatrixQuotient : Type₀
-  MatrixQuotient = SetQuotient₀ (Matrix n) _≈_
+  MatrixQuotient = SetQuotient₀ (FMatrix n) _≈_
 
   -- =======================================================================
   -- Core Definition: Alpha Derivation Structure
@@ -102,18 +100,18 @@ module AlphaLogic (n : ℕ) (fixed-lambda : Float) where
       
       -- 【論理的Shadow (Logical Shadow)】
       -- 「区別できないが異なる」状態が存在することの命題的表現
-      -- Σ (Matrix n) ... は Type₀ なので PropTrunc₀ に収まる
-      has-logical-shadow : PropTrunc₀ (Σ (Matrix n) (λ Z → 
-                                       Σ (Matrix n) (λ Z' → 
+      -- Σ (FMatrix n) ... は Type₀ なので PropTrunc₀ に収まる
+      has-logical-shadow : PropTrunc₀ (Σ (FMatrix n) (λ Z → 
+                                       Σ (FMatrix n) (λ Z' → 
                                          Times (Z ≡ Z' → Bottom) 
                                                (normalized-distortion Z ≡ normalized-distortion Z'))))
 
       -- 勾配流の存在 (Gradient Flow Existence)
       -- 計算経路の詳細は隠蔽される
-      has-gradient-flow : PropTrunc₀ (Σ (I → Matrix n) (λ path → sqReturn (path i1) ≡ optimal-Z-class))
+      has-gradient-flow : PropTrunc₀ (Σ (I → FMatrix n) (λ path → sqReturn (path i1) ≡ optimal-Z-class))
       
       -- Well-definedness
-      is-well-defined   : (Z1 Z2 : Matrix n) → (Z1 ≈ Z2) → (normalized-distortion Z1 ≡ normalized-distortion Z2)
+      is-well-defined   : (Z1 Z2 : FMatrix n) → (Z1 ≈ Z2) → (normalized-distortion Z1 ≡ normalized-distortion Z2)
       
       -- 一意性 (Uniqueness)
       is-unique         : (Z' : MatrixQuotient) → Z' ≡ optimal-Z-class
@@ -165,7 +163,7 @@ module AlphaLogic (n : ℕ) (fixed-lambda : Float) where
 
       -- 3. 勾配流の一意性 (PropTrunc₀なので自明)
       -- パスの依存型に対応するため PathP を適切に構成
-      flow-eq : PathP (λ j → PropTrunc₀ (Σ (I → Matrix n) (λ path → sqReturn (path i1) ≡ opt-eq j)))
+      flow-eq : PathP (λ j → PropTrunc₀ (Σ (I → FMatrix n) (λ path → sqReturn (path i1) ≡ opt-eq j)))
                       (x .has-gradient-flow)
                       (y .has-gradient-flow)
       flow-eq = isProp→PathP (λ j → squash) (x .has-gradient-flow) (y .has-gradient-flow)
@@ -176,7 +174,7 @@ module AlphaLogic (n : ℕ) (fixed-lambda : Float) where
       isSetMQ = sqSquash
 
       -- 5. Well-definedness の一意性 (関数空間はProp)
-      wd-eq : PathP (λ j → (Z1 Z2 : Matrix n) → (Z1 ≈ Z2) → (normalized-distortion Z1 ≡ normalized-distortion Z2))
+      wd-eq : PathP (λ j → (Z1 Z2 : FMatrix n) → (Z1 ≈ Z2) → (normalized-distortion Z1 ≡ normalized-distortion Z2))
                     (x .is-well-defined) (y .is-well-defined)
       wd-eq = isProp→PathP (λ _ → isPropΠ λ _ → isPropΠ λ _ → isPropΠ λ _ → isSetFloat _ _) 
                            (x .is-well-defined) (y .is-well-defined)

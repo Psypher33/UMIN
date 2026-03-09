@@ -138,3 +138,37 @@ alpha-decomposition {R = R} e =
 matrix-path-unique : ∀ {ℓ} {R : Ring ℓ} {n} {A B : Matrix R n} (p q : A ≡ B) → p ≡ q
 matrix-path-unique {R = R} {n} {A} {B} =
   Matrix-isSet R {n} A B
+
+-- ======================================================================
+-- 8. Float 向けの簡易 Magnitude 演算（旧 MagnitudeOps インターフェース）
+-- ======================================================================
+
+module MagnitudeOps (n : ℕ) where
+
+  open import Agda.Builtin.Float
+  open import Cubical.Data.Vec using (Vec; foldr)
+
+  private
+    _+f_ : Float → Float → Float
+    _+f_ = primFloatPlus
+
+  -- 行列型：n×n の Float 行列（Vec ベース）
+  FMatrix : ℕ → Type₀
+  FMatrix m = Vec (Vec Float m) m
+
+  -- 行の総和（Vec 上の foldr を利用）
+  row-sum : ∀ {m} → Vec Float m → Float
+  row-sum v = foldr (λ x acc → x +f acc) 0.0 v
+
+  -- 行列要素の総和（Float 行列版）も foldr で定義
+  fmatrix-sum : ∀ {m} → Vec (Vec Float m) m → Float
+  fmatrix-sum v = foldr (λ row acc → row-sum row +f acc) 0.0 v
+
+  -- Leinster Magnitude（Float 行列版：名前を分けておく）
+  leinster-magnitudeF : FMatrix n → Float
+  leinster-magnitudeF = fmatrix-sum
+
+  -- 正規化された歪み（Distortion）
+  -- 解析用の不変量なので、まずは総和に基づく単純な定義を置く
+  normalized-distortion : FMatrix n → Float
+  normalized-distortion M = fmatrix-sum M
