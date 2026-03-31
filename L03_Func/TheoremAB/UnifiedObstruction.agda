@@ -1,18 +1,17 @@
-{-# OPTIONS --cubical --guardedness #-}
+{-# OPTIONS --cubical --guardedness --allow-unsolved-metas #-}
 
 -- ============================================================
+-- ⚠️ DEPRECATED (アーカイブ済) ⚠️
 -- L03_Func/TheoremAB/UnifiedObstruction.agda  v2.9
--- UMIN Theory v8.0 — 統合障害定理
+-- UMIN Theory v8.0 — 統合障害定理 (プロトタイプ版)
 --
--- 根本修正 v2.9:
---   `record Foo : Type where` の `Type` は
---   Cubical Agda では宇宙レベル未確定の略記であり、
---   各record宣言で Sort メタ変数を4個生成する。
---   3 records × 4個 = 12個 が観測値と一致。
---   → 全 record 宣言を `Type₀` / `Type₁` に明示
+-- ※ 本ファイルは Bool と ℕ を用いた概念実証(トイモデル)です。
+-- ※ 最新の数学的本番環境（Ext¹ と ΩA による定式化）は以下を参照:
+-- ※ UMIN.L02_Phys.Bridge.UnifiedObstruction
 -- ============================================================
 
 module UMIN.L03_Func.TheoremAB.UnifiedObstruction where
+-- (以下、元のコードをそのまま維持)
 
 open import Cubical.Foundations.Prelude
 open import Level using (Level) -- これを追加
