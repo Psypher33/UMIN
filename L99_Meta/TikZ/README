@@ -1,0 +1,110 @@
+# TikZ 図（LaTeX）メモ
+
+このフォルダの `.tex` は **pdfLaTeX + latexmk** でビルドし、必要なら **PDF を PNG に変換**して X などへ投稿する想定です。
+
+---
+
+## TikZ フォルダへ移動
+
+```bash
+cd /home/yossy/Uniphics-Agda/UMIN/L99_Meta/TikZ
+```
+
+リポジトリのルート（`UMIN`）にいる場合:
+
+```bash
+cd L99_Meta/TikZ
+```
+
+---
+
+## コンパイル（PDF を生成）
+
+```bash
+cd /home/yossy/Uniphics-Agda/UMIN/L99_Meta/TikZ
+latexmk -pdf fig1-theorem51.tex
+latexmk -pdf umin-x-diagrams.tex
+```
+
+---
+
+## 削除してよいファイル（再コンパイルで復活）
+
+LaTeX / latexmk が作る **補助ファイル**は消して問題ありません。
+
+| パターン | 例 |
+|---------|-----|
+| `.aux` | `*.aux` |
+| `.log` | `*.log` |
+| SyncTeX | `*.synctex.gz` |
+| latexmk 用 | `*.fdb_latexmk`, `*.fls` |
+
+### latexmk に掃除させる（おすすめ）
+
+```bash
+cd /home/yossy/Uniphics-Agda/UMIN/L99_Meta/TikZ
+latexmk -c
+```
+
+特定のソースだけ:
+
+```bash
+latexmk -c fig1-theorem51.tex
+latexmk -c umin-x-diagrams.tex
+```
+
+### 手でパターン削除する例
+
+```bash
+cd /home/yossy/Uniphics-Agda/UMIN/L99_Meta/TikZ
+rm -f *.aux *.log *.synctex.gz *.fdb_latexmk *.fls
+```
+
+---
+
+## 消すと「成果物がなくなる」もの
+
+| もの | 説明 |
+|------|------|
+| `*.pdf` | コンパイル結果。消すと **再ビルドが必要** |
+| `*-1.png` など | PDF から変換した PNG。消しても **PDF から再変換可能** |
+
+---
+
+## PDF → PNG（例: 300 DPI）
+
+```bash
+cd /home/yossy/Uniphics-Agda/UMIN/L99_Meta/TikZ
+pdftoppm -png -r 300 fig1-theorem51.pdf fig1-theorem51
+pdftoppm -png -r 300 umin-x-diagrams.pdf umin-x-diagrams
+```
+
+出力ファイル名は `fig1-theorem51-1.png` のように **`-1`** が付くことが多いです。
+
+---
+
+## Cursor / VS Code（任意）
+
+- プロジェクト直下の `.vscode/tasks.json` に **「PDF→PNG」** 用タスクがあります。  
+  コマンドパレット → **Tasks: Run Task** → 該当タスクを実行。  
+  実行前に **対象の `.tex` をアクティブ**にし、**PDF ができている**状態にしてください。
+
+---
+
+## X（Twitter）投稿向け: `-r 300` でよいか
+
+**結論:** 図の種類にもよりますが、**`-r 300`（300 DPI）でも多くの場合問題ありません。** 気にするなら **ファイル容量（MB）と、表示上のピクセル幅**です。
+
+- **DPI（`-r`）** は「1 インチあたり何ピクセルか」の目安です。PDF の**見た目の大きさ（インチ）が大きい**ほど、同じ DPI でも **ピクセル数・ファイルサイズは増えます**。
+- X の画像は、一般に **数 MB 程度まで**がアップロードの目安としてよく言われます（公式ヘルプの上限は変更されることがあるので、投稿前に **ヘルプ**で確認すると安全です）。プレミアムかどうかより、**画像の仕様**を確認してください。
+- **容量が大きすぎる**ときは、例として次を試します。
+  - `-r` を下げる（例: `200` や `150`）
+  - 外部ツールで PNG を圧縮する（`pngquant` など）
+- **文字や線画の図**は、画面表示向けでも **ある程度の解像度**の方がにじみにくいです。`-r 150`〜`300` の範囲で、見た目と容量のバランスを取るのが実用的です。
+
+---
+
+## 補足
+
+- ソースは **pdfLaTeX 向け**に、Unicode ではなく `amsmath` 等の記法を使っています（日本語・絵文字は別エンジンが必要）。
+- 不明点は `umin-x-diagrams.tex` / `fig1-theorem51.tex` のプリアンブルと同じ方針で追加してください。

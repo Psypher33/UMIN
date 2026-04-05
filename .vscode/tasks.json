@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "PDF→PNG (開いている .tex と同名の PDF)",
+      "type": "shell",
+      "command": "pdftoppm",
+      "args": [
+        "-png",
+        "-r",
+        "300",
+        "${fileDirname}/${fileBasenameNoExtension}.pdf",
+        "${fileDirname}/${fileBasenameNoExtension}"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "group": "none"
+    }
+  ]
+}

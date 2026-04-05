@@ -1,0 +1,67 @@
+!TEX TS-program = lualatex
+\documentclass[border=25pt]{standalone}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, decorations.pathmorphing, shapes.geometric}
+
+\tikzset{
+  wire/.style={thick, ->, line width=3.2pt},
+  wire-thick/.style={wire, line width=4.8pt},
+  extbox/.style={draw, rounded corners=8pt, minimum width=2.3cm, minimum height=1.05cm, 
+                 fill=blue!15, thick, align=center, font=\small\bfseries},
+  defect/.style={draw, diamond, minimum size=1.05cm, fill=red!28, thick, inner sep=3pt},
+  kmspath/.style={wire, decorate, decoration={snake, amplitude=2.2pt, segment length=10pt}},
+  label/.style={font=\footnotesize\bfseries, align=center},
+  title/.style={font=\bfseries\Large},
+  xcaption/.style={font=\small, text width=9cm, align=center}
+}
+
+\begin{document}
+\begin{tikzpicture}[scale=1.22]
+
+  % タイトル
+  \node[title] at (6,8) {Theorem 5.1: UMIN Covering Classification};
+
+  % ==================== 左側の縦の流れ（TremblingCoreを綺麗に通り抜け） ====================
+  % 上部の入力ワイヤー
+  \draw[wire] (0,7) -- (0,5.1) node[above, label] {A};
+
+  % Ext¹ボックス
+  \node[extbox] (Ext) at (0,4.1) {Ext$^1$($\ast$,A)\\[3pt]\scriptsize(normalized)};
+
+  % TremblingCore（縦線がちゃんと貫通するように配置）
+  \node[defect] (Tremble) at (0,2.65) {TremblingCore};
+
+  % 下部の出力ワイヤー
+  \draw[wire] (0,1.8) -- (0,0.3) node[below, label] {A};
+
+  % 縦のメインワイヤー（Ext → TremblingCore → A を一本の線で表現）
+  \draw[wire-thick] (0,5.1) -- (Ext.north);
+  \draw[wire-thick] (Ext.south) -- (Tremble.north);
+  \draw[wire-thick] (Tremble.south) -- (0,0.3);
+
+  % ==================== 右側へのδ分岐 ====================
+  \draw[kmspath, red] (Ext.east) -- (3.5,4.1) 
+    node[midway, above, sloped, label] {$\delta$};
+  \node[defect] (Delta) at (3.5,4.1) {$\delta$};
+
+  % π₁(ΩA)
+  \node[extbox, fill=green!15] (Pi1) at (7.2,4.1) {$\pi_1(\Omega A)\cong\mathbb{Z}$\\$\beta=1$ (normalized)};
+
+  \draw[wire-thick] (3.5,4.1) -- (Pi1.west);
+
+  % Coverings
+  \node[extbox, fill=orange!15] (Cover) at (11.8,4.1) {Coverings(A, $\ast$)};
+
+  \draw[wire] (Pi1.east) -- (Cover.west) 
+    node[midway, above, label] {monodromy $\beta^n$};
+
+  % 下部のキャプション
+  \node[xcaption] at (6,-1.2) {$\checkmark$ Normalizationで$\beta=1$固定！\\Coverings $\simeq$ Normalized Ext$^1$ (encode-decode)};
+
+\end{tikzpicture}
+\end{document}
