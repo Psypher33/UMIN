@@ -1,7 +1,6 @@
 {-# OPTIONS --cubical --guardedness #-}
 module UMIN.L02_Phys.Bridge.UMIN_RH_Core (X : Set₀) (V : Set₀) where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (isOfHLevel→isOfHLevelDep ; isOfHLevelPath')
 open import Cubical.Foundations.Equiv
@@ -46,9 +45,9 @@ data TotalFiber (Cov : Covering) (c : Cocycle Cov) (x : X) : Type₀ where
        → base i ui v ≡ base j uj (equivFun (g c i j x (ui , uj)) v)
   trunc : isSet (TotalFiber Cov c x)
 
--- [✓] trunc コンストラクタによる直接証明
+-- trunc 面: 平行な二道 p q を同一視（SetTruncation の squash₂ と同じ役割）
 TotalFiber-isSet : {Cov : Covering} {c : Cocycle Cov} {x : X} → isSet (TotalFiber Cov c x)
-TotalFiber-isSet {Cov} {c} {x} = trunc
+TotalFiber-isSet _ _ p q = trunc _ _ p q
 
 -- ==========================================
 -- 3.5. V 上のトルサー（各点のファイバー模型）
@@ -212,8 +211,8 @@ abstract
     isOfHLevel→isOfHLevelDep 2
       (λ t → isProp→isSet (isOfHLevelPath' 1 TotalFiber-isSet (from (to t)) t))
       (ret t1) (ret t2)
-      (cong (λ t → from (to t)) p1)
-      (cong (λ t → from (to t)) p2)
+      (cong ret p1)
+      (cong ret p2)
       (trunc t1 t2 p1 p2) k1 k2
 
   section-equiv : (Cov : Covering) (L : LocalSystem) (x : X)

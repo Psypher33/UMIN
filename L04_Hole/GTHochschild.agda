@@ -124,13 +124,13 @@ postulate
 -- ============================================================
 
 postulate
-  FTS-E7 : Type₀
+  FTS-E7-local : Type₀
 
   H1-∧²T-is-FTS : (X : E8ClusterVariety)
-    → H1-∧²T X ≡ FTS-E7
+    → H1-∧²T X ≡ FTS-E7-local
 
   grand-unified-bridge : (X : E8ClusterVariety)
-    → grt1 ≃ FTS-E7
+    → grt1 ≃ FTS-E7-local
 
 -- ============================================================
 -- §8 m₃の最小モデル計算（Gemyの発見）

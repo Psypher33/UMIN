@@ -1,7 +1,6 @@
 {-# OPTIONS --safe --cubical --guardedness #-}
 module UMIN.L01_Math.Category.PentagonAxiom where
 
-open import Cubical.Core.Everything
 open import Cubical.Foundations.Prelude
 open import Cubical.Algebra.Ring
 
