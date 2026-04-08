@@ -1,0 +1,7 @@
+{
+  "agdaMode.connection.paths": ["/Users/psypher/.local/opt/agda"],
+  "agdaMode.connection.commandLineOptions": "-i/Users/psypher/UMIN/agda-libraries/cubical -i/Users/psypher/UMIN/agda-libraries/agda-stdlib/src",
+  "terminal.integrated.env.osx": {
+    "PATH": "${env:HOME}/.local/bin:${env:PATH}"
+  }
+}

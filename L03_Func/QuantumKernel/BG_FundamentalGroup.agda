@@ -1,17 +1,16 @@
-{-# OPTIONS --cubical --guardedness #-}
+{-# OPTIONS --safe --cubical --guardedness #-}
 
 -- ============================================================
 -- BG_FundamentalGroup.agda
--- UMIN Theory v7.0 / Phase C-1: BG の EM(G,1) 完全構成と ΩBG ≃ G
+-- UMIN Theory v7.0 / Phase C-1: BG の EM(G,1) 最小構成
+-- encode / ΩBG≃G 等の公理は BG_FundamentalGroup.Axioms を参照
 -- ============================================================
 
 module UMIN.L03_Func.QuantumKernel.BG_FundamentalGroup where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
+import Cubical.Foundations.GroupoidLaws as Path
 
 -- ============================================================
 -- 1. 抽象群 G の厳密な定義 (相棒のコードを完全採用！)
@@ -40,43 +39,30 @@ data BG (G : Group) : Type where
   loop-comp : (g h : Group.Carrier G) → loop (Group._⋆_ G g h) ≡ loop g ∙ loop h
   trunc : isGroupoid (BG G)
 
--- 🌟 【Gemyの最適化】loop-unit は公理ではなく「定理」として証明できる！
--- (証明のスケッチ: loop(unit) = loop(unit * unit) = loop(unit) ∙ loop(unit)
---  両辺から loop(unit) をキャンセルすれば refl = loop(unit) になる)
-postulate
-  loop-unit-thm : {G : Group} → loop {G} (Group.unit G) ≡ refl
+-- loop(unit) = refl（群の単位律と loop-comp から、パスの群論で導出）
+loop-unit-thm : {G : Group} → loop {G} (Group.unit G) ≡ refl
+loop-unit-thm {G = G} =
+  let
+    q = loop (Group.unit G)
+    q≡q∙q : q ≡ q ∙ q
+    q≡q∙q =
+      cong loop (sym (Group.lid G (Group.unit G))) ∙ loop-comp (Group.unit G) (Group.unit G)
+    refl≡q : refl ≡ q
+    refl≡q =
+      sym (Path.lCancel q)
+        ∙ cong (sym q ∙_) q≡q∙q
+        ∙ Path.assoc (sym q) q q
+        ∙ cong (_∙ q) (Path.lCancel q)
+        ∙ sym (Path.lUnit q)
+  in
+  sym refl≡q
 
 -- ============================================================
--- 3. 🚀 Encode と Decode (ΩBG ≃ G の心臓部)
+-- 3. Decode（群の元 → ループ）
 -- ============================================================
 
--- 【Decode】 群の元からパス(ループ)を作る。これは単に loop を適用するだけ。
 decode : {G : Group} → Group.Carrier G → (base {G} ≡ base {G})
 decode g = loop g
-
--- 【Encode】 パスから群の元を取り出す魔法！
--- 1. 群 G 自身をファイバーとする「普遍被覆空間 (Universal Cover)」を構成する。
--- 2. パス p に沿って単位元 (unit) を transport すると、群の元 g が現れる！
-postulate
-  -- 2. パス p に沿って単位元 (unit) を transport すると群の元が得られる、
-  -- という構成そのものをここでは公理として残しておく（EM(G,1) の仕様レベル）。
-  encode : {G : Group} → (base {G} ≡ base {G}) → Group.Carrier G
-
--- ============================================================
--- 4. 究極の定理：ループ空間 ΩBG と群 G の完全なる同値性（仕様レベル）
--- ============================================================
-postulate
-  encode-decode :
-    (G : Group) (g : Group.Carrier G) →
-    encode {G} (decode {G} g) ≡ g
-
-  decode-encode :
-    (G : Group) (p : base {G} ≡ base {G}) →
-    decode {G} (encode {G} p) ≡ p
-
-  ΩBG≃G :
-    (G : Group) →
-    (base {G} ≡ base {G}) ≃ Group.Carrier G
 
 -- ============================================================
 -- 【物理的意義】
