@@ -55,6 +55,7 @@ TotalFiber-isSet _ _ p q = trunc _ _ p q
 record VTorsor : Type₁ where
   field
     carrier : Type₀
+    carrier-isSet : isSet carrier
     act : V → carrier → carrier
     transitive : (p q : carrier) → ∥ Σ[ v ∈ V ] act v p ≡ q ∥₁
     free : (v w : V) (p : carrier) → act v p ≡ act w p → v ≡ w
@@ -66,38 +67,39 @@ open VTorsor
 -- ==========================================
 record LocalSystem : Type₁ where
   field
+    Cov : Covering
     F : X → VTorsor
     transportF : {x y : X} → x ≡ y → carrier (F x) ≃ carrier (F y)
-    triv : (Cov : Covering) → (i : Index Cov) → (x : X) → U Cov i x → carrier (F x) ≃ V
+    triv : (i : Index Cov) → (x : X) → U Cov i x → carrier (F x) ≃ V
 
 open LocalSystem
 
-postulate
-  carrier-isSet : {L : LocalSystem} {x : X} → isSet (carrier (F L x))
+LocalSystem-at : Covering → Type₁
+LocalSystem-at Cov₀ = Σ[ L ∈ LocalSystem ] (Cov L ≡ Cov₀)
 
 -- ==========================================
 -- 5. Loc → Cocycle の構成
 -- ==========================================
 -- [✓] triv : carrier (F x) ≃ V なので invEquiv-is-linv は余域 V 側＝secEq（retEq ではない）
 Loc→Cocycle-g-id :
-  (Cov : Covering) (L : LocalSystem) (i : Index Cov) (x : X) (ui : U Cov i x) →
-  compEquiv (invEquiv (triv L Cov i x ui)) (triv L Cov i x ui) ≡ idEquiv V
-Loc→Cocycle-g-id Cov L i x ui =
-  equivEq (funExt (λ v → secEq (triv L Cov i x ui) v))
+  (L : LocalSystem) (i : Index (Cov L)) (x : X) (ui : U (Cov L) i x) →
+  compEquiv (invEquiv (triv L i x ui)) (triv L i x ui) ≡ idEquiv V
+Loc→Cocycle-g-id L i x ui =
+  equivEq (funExt (λ v → secEq (triv L i x ui) v))
 
 -- [✓] compEquiv-assoc と invEquiv-is-rinv（carrier 側 retEq）で tj∘inv tj を相殺
 Loc→Cocycle-g-comp :
-  (Cov : Covering) (L : LocalSystem) (i j k : Index Cov) (x : X)
-  (ui : U Cov i x) (uj : U Cov j x) (uk : U Cov k x) →
-  let ti = triv L Cov i x ui
-      tj = triv L Cov j x uj
-      tk = triv L Cov k x uk
+  (L : LocalSystem) (i j k : Index (Cov L)) (x : X)
+  (ui : U (Cov L) i x) (uj : U (Cov L) j x) (uk : U (Cov L) k x) →
+  let ti = triv L i x ui
+      tj = triv L j x uj
+      tk = triv L k x uk
   in
   compEquiv (compEquiv (invEquiv ti) tj) (compEquiv (invEquiv tj) tk) ≡ compEquiv (invEquiv ti) tk
-Loc→Cocycle-g-comp Cov L i j k x ui uj uk =
-  let ti = triv L Cov i x ui
-      tj = triv L Cov j x uj
-      tk = triv L Cov k x uk
+Loc→Cocycle-g-comp L i j k x ui uj uk =
+  let ti = triv L i x ui
+      tj = triv L j x uj
+      tk = triv L k x uk
       middle : compEquiv tj (compEquiv (invEquiv tj) tk) ≡ tk
       middle =
           compEquiv-assoc tj (invEquiv tj) tk
@@ -107,27 +109,27 @@ Loc→Cocycle-g-comp Cov L i j k x ui uj uk =
     sym (compEquiv-assoc (invEquiv ti) tj (compEquiv (invEquiv tj) tk))
   ∙ cong (compEquiv (invEquiv ti)) middle
 
-Loc→Cocycle : (Cov : Covering) → LocalSystem → Cocycle Cov
-Loc→Cocycle Cov L = record
-  { g = λ i j x (ui , uj) → compEquiv (invEquiv (triv L Cov i x ui)) (triv L Cov j x uj)
-  ; g-id = λ i x ui → Loc→Cocycle-g-id Cov L i x ui
-  ; g-comp = λ i j k x ui uj uk → Loc→Cocycle-g-comp Cov L i j k x ui uj uk
+Loc→Cocycle : (L : LocalSystem) → Cocycle (Cov L)
+Loc→Cocycle L = record
+  { g = λ i j x (ui , uj) → compEquiv (invEquiv (triv L i x ui)) (triv L j x uj)
+  ; g-id = λ i x ui → Loc→Cocycle-g-id L i x ui
+  ; g-comp = λ i j k x ui uj uk → Loc→Cocycle-g-comp L i j k x ui uj uk
   }
 
 -- ==========================================
 -- 💥 6. 選択独立性補題 (Independence Lemma)
 -- ==========================================
-independence : {Cov : Covering} (L : LocalSystem) (x : X)
-             (i j : Index Cov) (ui : U Cov i x) (uj : U Cov j x) (fx : carrier (F L x))
-             → base i ui (equivFun (triv L Cov i x ui) fx) 
-             ≡ base j uj (equivFun (triv L Cov j x uj) fx)
-independence {Cov} L x i j ui uj fx =
+independence : (L : LocalSystem) (x : X)
+             (i j : Index (Cov L)) (ui : U (Cov L) i x) (uj : U (Cov L) j x) (fx : carrier (F L x))
+             → base i ui (equivFun (triv L i x ui) fx) 
+             ≡ base j uj (equivFun (triv L j x uj) fx)
+independence L x i j ui uj fx =
   let 
-    ti = triv L Cov i x ui
-    tj = triv L Cov j x uj
+    ti = triv L i x ui
+    tj = triv L j x uj
     vi = equivFun ti fx
     gij = compEquiv (invEquiv ti) tj
-    glue-path = paste {c = Loc→Cocycle Cov L} i j ui uj vi
+    glue-path = paste {c = Loc→Cocycle L} i j ui uj vi
     
     eval-path : equivFun gij vi ≡ equivFun tj fx
     eval-path = cong (equivFun tj) (retEq ti fx)
@@ -140,51 +142,51 @@ independence {Cov} L x i j ui uj fx =
 --         sec・ret はその展開に依存するため同じブロックに置く。）
 -- ==========================================
 abstract
-  from : {Cov : Covering} {L : LocalSystem} {x : X}
-       → carrier (F L x) → TotalFiber Cov (Loc→Cocycle Cov L) x
-  from {Cov} {L} {x} fx =
-    rec→Set (TotalFiber-isSet {Cov} {Loc→Cocycle Cov L} {x})
-            (λ (i , ui) → base i ui (equivFun (triv L Cov i x ui) fx))
+  from : {L : LocalSystem} {x : X}
+       → carrier (F L x) → TotalFiber (Cov L) (Loc→Cocycle L) x
+  from {L} {x} fx =
+    rec→Set (TotalFiber-isSet {Cov = Cov L} {c = Loc→Cocycle L} {x = x})
+            (λ (i , ui) → base i ui (equivFun (triv L i x ui) fx))
             (λ (i , ui) (j , uj) → independence L x i j ui uj fx)
-            (is-cover Cov x)
+            (is-cover (Cov L) x)
 
-  to : {Cov : Covering} {L : LocalSystem} {x : X}
-     → TotalFiber Cov (Loc→Cocycle Cov L) x → carrier (F L x)
-  to {Cov} {L} {x} (base i ui v) =
-    equivFun (invEquiv (triv L Cov i x ui)) v
+  to : {L : LocalSystem} {x : X}
+     → TotalFiber (Cov L) (Loc→Cocycle L) x → carrier (F L x)
+  to {L} {x} (base i ui v) =
+    equivFun (invEquiv (triv L i x ui)) v
 
-  to {Cov} {L} {x} (paste i j ui uj v k) =
+  to {L} {x} (paste i j ui uj v k) =
     let
-      ti = triv L Cov i x ui
-      tj = triv L Cov j x uj
+      ti = triv L i x ui
+      tj = triv L j x uj
       gij-v = equivFun (compEquiv (invEquiv ti) tj) v
       glue-compat : equivFun (invEquiv ti) v ≡ equivFun (invEquiv tj) gij-v
       glue-compat = sym (retEq tj (equivFun (invEquiv ti) v))
     in
     glue-compat k
 
-  to {Cov} {L} {x} (trunc t1 t2 p1 p2 k1 k2) =
-    isOfHLevel→isOfHLevelDep 2 (λ _ → carrier-isSet {L = L} {x = x}) (to t1) (to t2) (cong to p1) (cong to p2)
+  to {L} {x} (trunc t1 t2 p1 p2 k1 k2) =
+    isOfHLevel→isOfHLevelDep 2 (λ _ → carrier-isSet (F L x)) (to t1) (to t2) (cong to p1) (cong to p2)
       (trunc t1 t2 p1 p2) k1 k2
 
   -- sec / ret / section-equiv も同ブロック内：abstract 外では from/to が展開されないため
-  sec : {Cov : Covering} {L : LocalSystem} {x : X} (fx : carrier (F L x))
-      → to {Cov} {L} {x} (from {Cov} {L} {x} fx) ≡ fx
-  sec {Cov} {L} {x} fx =
+  sec : {L : LocalSystem} {x : X} (fx : carrier (F L x))
+      → to {L} {x} (from {L} {x} fx) ≡ fx
+  sec {L} {x} fx =
     PT.elim
-      (λ _ → isOfHLevelPath' 1 carrier-isSet (to (from fx)) fx)
-      (λ (i , ui) → retEq (triv L Cov i x ui) fx)
-      (is-cover Cov x)
+      (λ _ → isOfHLevelPath' 1 (carrier-isSet (F L x)) (to (from fx)) fx)
+      (λ (i , ui) → retEq (triv L i x ui) fx)
+      (is-cover (Cov L) x)
 
-  ret : {Cov : Covering} {L : LocalSystem} {x : X} (t : TotalFiber Cov (Loc→Cocycle Cov L) x)
-      → from {Cov} {L} {x} (to {Cov} {L} {x} t) ≡ t
-  ret {Cov} {L} {x} (base i ui v) =
+  ret : {L : LocalSystem} {x : X} (t : TotalFiber (Cov L) (Loc→Cocycle L) x)
+      → from {L} {x} (to {L} {x} t) ≡ t
+  ret {L} {x} (base i ui v) =
     PT.elim
       (λ _ → isOfHLevelPath' 1 TotalFiber-isSet (from (to (base i ui v))) (base i ui v))
       (λ (j , uj) →
         let
-          ti   = triv L Cov i x ui
-          tj   = triv L Cov j x uj
+          ti   = triv L i x ui
+          tj   = triv L j x uj
           fx   = equivFun (invEquiv ti) v
 
           step1 : equivFun ti fx ≡ v
@@ -197,17 +199,17 @@ abstract
           step3 = cong (base i ui) step1
         in
         step2 ∙ step3)
-      (is-cover Cov x)
+      (is-cover (Cov L) x)
 
-  ret {Cov} {L} {x} (paste i j ui uj v k) =
+  ret {L} {x} (paste i j ui uj v k) =
     isOfHLevel→isOfHLevelDep 1
       (λ t → isOfHLevelPath' 1 TotalFiber-isSet (from (to t)) t)
       (ret (base i ui v))
-      (ret (base j uj (equivFun (g (Loc→Cocycle Cov L) i j x (ui , uj)) v)))
+      (ret (base j uj (equivFun (g (Loc→Cocycle L) i j x (ui , uj)) v)))
       (paste i j ui uj v)
       k
 
-  ret {Cov} {L} {x} (trunc t1 t2 p1 p2 k1 k2) =
+  ret {L} {x} (trunc t1 t2 p1 p2 k1 k2) =
     isOfHLevel→isOfHLevelDep 2
       (λ t → isProp→isSet (isOfHLevelPath' 1 TotalFiber-isSet (from (to t)) t))
       (ret t1) (ret t2)
@@ -215,14 +217,14 @@ abstract
       (cong ret p2)
       (trunc t1 t2 p1 p2) k1 k2
 
-  section-equiv : (Cov : Covering) (L : LocalSystem) (x : X)
-                → TotalFiber Cov (Loc→Cocycle Cov L) x ≃ carrier (F L x)
-  section-equiv Cov L x =
-    isoToEquiv (iso (to {Cov} {L} {x}) (from {Cov} {L} {x}) (sec {Cov} {L} {x}) (ret {Cov} {L} {x}))
+  section-equiv : (L : LocalSystem) (x : X)
+                → TotalFiber (Cov L) (Loc→Cocycle L) x ≃ carrier (F L x)
+  section-equiv L x =
+    isoToEquiv (iso (to {L} {x}) (from {L} {x}) (sec {L} {x}) (ret {L} {x}))
 
 -- ==========================================
 -- Theorem B（別途）
 -- ==========================================
 postulate
-  -- [P] Theorem B (Ext¹ ≃ LocalSystem) の宣言
-  UMIN-RH-Equivalence : (Cov : Covering) → Cocycle Cov ≃ LocalSystem
+  -- [P] Theorem B（固定被覆上の局所系とコサイクルの同値）
+  UMIN-RH-Equivalence : (Cov : Covering) → Cocycle Cov ≃ LocalSystem-at Cov

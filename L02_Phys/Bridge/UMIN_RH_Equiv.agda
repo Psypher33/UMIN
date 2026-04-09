@@ -10,35 +10,35 @@ open import UMIN.L02_Phys.Bridge.UMIN_RH_Fiber X V
 
 postulate
   -- to / from の定義（骨格）
-  to : {Cov : Covering} {L : LocalSystem} {x : X}
-     → TotalFiber Cov (Loc→Cocycle Cov L) x
-     → carrier (F L x)
+  to : {L : LocalSystem} {x : X}
+     → TotalFiber (Cov L) (Loc→Cocycle L) x
+     → F L x
 
-  from : {Cov : Covering} {L : LocalSystem} {x : X}
-       → carrier (F L x)
-       → TotalFiber Cov (Loc→Cocycle Cov L) x
+  from : {L : LocalSystem} {x : X}
+       → F L x
+       → TotalFiber (Cov L) (Loc→Cocycle L) x
 
   -- section（to ∘ from = id）
-  sec : {Cov : Covering} {L : LocalSystem} {x : X}
-      → (fx : carrier (F L x))
-      → to {Cov} {L} {x} (from {Cov} {L} {x} fx) ≡ fx
+  sec : {L : LocalSystem} {x : X}
+      → (fx : F L x)
+      → to {L} {x} (from {L} {x} fx) ≡ fx
 
 -- ==========================================
 -- retraction と section-equiv の骨格
 -- ==========================================
 postulate
-  ret : {Cov : Covering} {L : LocalSystem} {x : X}
-      → (t : TotalFiber Cov (Loc→Cocycle Cov L) x)
-      → from {Cov} {L} {x} (to {Cov} {L} {x} t) ≡ t
+  ret : {L : LocalSystem} {x : X}
+      → (t : TotalFiber (Cov L) (Loc→Cocycle L) x)
+      → from {L} {x} (to {L} {x} t) ≡ t
 
-section-equiv : (Cov : Covering) (L : LocalSystem) (x : X)
-              → TotalFiber Cov (Loc→Cocycle Cov L) x ≃ carrier (F L x)
-section-equiv Cov L x =
+section-equiv : (L : LocalSystem) (x : X)
+              → TotalFiber (Cov L) (Loc→Cocycle L) x ≃ F L x
+section-equiv L x =
   isoToEquiv (iso
-    (to {Cov = Cov} {L = L} {x = x})
-    (from {Cov = Cov} {L = L} {x = x})
-    (sec {Cov = Cov} {L = L} {x = x})
-    (ret {Cov = Cov} {L = L} {x = x}))
+    (to {L = L} {x = x})
+    (from {L = L} {x = x})
+    (sec {L = L} {x = x})
+    (ret {L = L} {x = x}))
 
 postulate
-  UMIN-RH-Equivalence : (Cov : Covering) → Cocycle Cov ≃ LocalSystem
+  UMIN-RH-Equivalence : (Cov : Covering) → Cocycle Cov ≃ LocalSystem-at Cov
