@@ -1,8 +1,8 @@
-{-# OPTIONS --cubical --guardedness #-}
-
-module UMIN.L02_Phys.Bridge.UMIN_RH_TotalFiberTriv (X : Set₀) (V : Set₀) where
+{-# OPTIONS --cubical --guardedness --safe #-}
 
 open import Cubical.Foundations.Prelude
+
+module UMIN.L02_Phys.Bridge.UMIN_RH_TotalFiberTriv (X : Set₀) (V : Set₀) (isSetV : isSet V) where
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels using (isOfHLevelPath')
 open import Cubical.Foundations.Isomorphism
@@ -10,14 +10,6 @@ open import Cubical.Foundations.Isomorphism
 
 open import UMIN.L01_Math.Geometry.UMIN_RH_Base X V
 open import UMIN.L02_Phys.Bridge.UMIN_RH_Fiber X V
-
-------------------------------------------------------------------------
--- isSetV：V の isSet
--- F-set で代替できないので postulate のまま
--- （V は抽象的な Set₀ なので避けられない）
-------------------------------------------------------------------------
-
-postulate isSetV : isSet V
 
 ------------------------------------------------------------------------
 -- to 方向：TotalFiber → V

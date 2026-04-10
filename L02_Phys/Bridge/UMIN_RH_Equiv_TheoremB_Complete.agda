@@ -15,7 +15,6 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import UMIN.L01_Math.Geometry.UMIN_RH_Base X V
 open import UMIN.L02_Phys.Bridge.UMIN_RH_Fiber X V
 open import UMIN.L02_Phys.Bridge.UMIN_RH_Equiv_Final X V
-open import UMIN.L02_Phys.Bridge.UMIN_RH_CocycleToLoc X V
 
 ------------------------------------------------------------------------
 -- V の isSet（唯一残る postulate）
@@ -23,6 +22,8 @@ open import UMIN.L02_Phys.Bridge.UMIN_RH_CocycleToLoc X V
 
 postulate
   isSetV : isSet V
+
+open import UMIN.L02_Phys.Bridge.UMIN_RH_CocycleToLoc X V isSetV
 
 ------------------------------------------------------------------------
 -- isSet-Equiv（導出）
@@ -87,31 +88,8 @@ postulate
     LocalSystem
 
 ------------------------------------------------------------------------
--- cocycle-reconstruct（証明済み）
-------------------------------------------------------------------------
-
-cocycle-reconstruct :
-  (Cov : Covering) (C : Cocycle Cov) →
-  ∀ i j x (ui : U Cov i x) (uj : U Cov j x) →
-    g (Loc→Cocycle (Cocycle→Loc-global Cov C))
-      i j x (ui , uj)
-    ≡
-    g C i j x (ui , uj)
-cocycle-reconstruct Cov C i j x ui uj =
-  equivEq (funExt λ v →
-    let
-      Ti = triv (Cocycle→Loc-global Cov C) i x ui
-      Tj = triv (Cocycle→Loc-global Cov C) j x uj
-      calc : equivFun Tj (equivFun (invEquiv Ti) v)
-           ≡ equivFun (g C i j x (ui , uj)) v
-      calc =
-        funExt⁻ (triv-def Cov C i j x ui uj) (equivFun (invEquiv Ti) v)
-        ∙ cong (equivFun (g C i j x (ui , uj))) (secEq Ti v)
-    in calc
-  )
-
-------------------------------------------------------------------------
 -- Cocycle-path（証明済み）
+-- cocycle-reconstruct は UMIN_RH_CocycleToLoc から import
 ------------------------------------------------------------------------
 
 Cocycle-path :

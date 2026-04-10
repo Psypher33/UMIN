@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --guardedness #-}
+{-# OPTIONS --cubical --guardedness --safe #-}
 
 module UMIN.L02_Phys.Bridge.UMIN_RH_Fiber (X : Set₀) (V : Set₀) where
 
