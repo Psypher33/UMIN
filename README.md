@@ -1,227 +1,194 @@
-# UMIN — Univalent Manifold Infinity Network
+# UMIN — Noncommutative Covering Theory
 
-**A formal framework for coboundary structures in E₈ exceptional geometry,  
-bridging cluster varieties, mixed Tate motives, and the Grothendieck–Teichmüller group.**
-
-[![Cubical Agda](https://img.shields.io/badge/Cubical%20Agda-2.8.0-blue)](https://github.com/agda/cubical)
-[![arXiv](https://img.shields.io/badge/arXiv-preprint%202026-red)](https://arxiv.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-
----
-
-## What is UMIN?
-
-UMIN is a **formal mathematics project** built in Cubical Agda.
-
-The central observation is simple:
-
-> In three independent settings — motivic, algebraic, and p-adic —  
-> a natural "defect" measuring the failure of an associativity or additivity condition  
-> turns out to be a **coboundary**:
+> **"Obstruction generates covering. The covering is not given in advance."**
 >
-> **[defect] = 0 ∈ H²**
+> Classical: &nbsp; covering &nbsp;→&nbsp; monodromy
+> UMIN: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; obstruction (Ext¹ ≠ 0) &nbsp;→&nbsp; covering emerges
 
-UMIN constructs and machine-verifies this coboundary mechanism across all three layers,
-then asks: *what is the universal algebraic object governing this phenomenon?*
+**UMIN** (*Univalent Manifold Infinity Network*) is a constructive framework
+in Homotopy Type Theory (HoTT) that reverses the classical logical order
+of covering theory. Instead of deriving monodromy *from* a covering,
+we show that a non-split extension class `ε ∈ Ext¹` provides the
+**constructive origin** of global covering geometry —
+realized through the equivalence of Čech cocycles and local systems.
 
-The answer points toward the **Grothendieck–Teichmüller group** and the
-theory of **Drinfeld associators** — this is UMIN's horizon.
-
----
-
-## Core Results (Machine-Verified)
-
-All results marked **[✓]** are compiled under `--cubical --safe --guardedness` with zero postulates.
-
-### The UMIN Coherence Theorem  `[✓]`
-*Module: `UMIN.L00_Core.Logic.UMIN_Theor`*
-
-For alpha states over any commutative ring A with 2 ∈ A×,
-the associativity defect is an exact coboundary:
-
-```
-Assoc(s₁, s₂, s₃) = D₃/4 − D₁/4 = (δf)(s₁, s₂, s₃)
-
-∴  [Assoc] = 0 ∈ H²
-```
-
-Key properties — proved by `refl`:
-- **Boundary dependence**: depends only on the endpoints (s₁, s₃), not on s₂
-- **Locality**: L- and A-components cancel exactly
-- **Universality**: holds over any ring with 2 invertible
-
-### p-adic Coboundary Realization  `[✓]`
-*Module: `UMIN.L00_Core.Logic.LogShell_v2`*
-
-Define φ(n) = v₂(n) − v₃(n) and the additive defect δ(m,n) = φ(m) + φ(n) − φ(m+n).
-
-```
-Theorem (2-Cocycle):   δ(m,n) + δ(m+n,k) = δ(n,k) + δ(m,n+k)    [✓]
-Theorem (Coboundary):  [δ] = 0 ∈ H²(ℕ, ℤ)   via  f(n) = −φ(n)   [✓]
-Witness:               δ(4,4) = 1 ≠ 0   (defect is non-trivial)   [✓]
-```
-
-### E₈ Cluster Variety and Mixed Tate Motives  `[P]`
-*Module: `UMIN.L02_Bridge.*`*
-
-From the Miyashita 2-graded decomposition of e₈:
-
-```
-e₈ = g₋₂(14) ⊕ g₋₁(64) ⊕ g₀(92) ⊕ g₁(64) ⊕ g₂(14)   [✓ refl]
-```
-
-We construct the E₈ cluster variety X = G^{c,c⁻¹} ⊂ G_{E₈} and show:
-
-- Each seed torus X_seed ≅ 𝔾ₘᴺ  carries a **mixed Tate motive** over ℤ  `[✓]`
-- A motivic realization map  ρ: ℤ → Ext¹_{MT(ℤ)}(Q(0), Q(1))  is well-defined
-  subject to Assumption 5.2 (weight-1 projection)  `[P]`
-
-### Vortex Group Completion  `[✓ / H]`
-*Module: `UMIN.L02_Bridge.VortexCompletion`*
-
-The map η: VortexM(A) → ΩB(VortexM(A)) is a **monoid homomorphism** `[✓]`.  
-Full group completion (Conjecture) is the HoTT analog of McDuff–Segal `[H]`.
-
-Special case A = 1 recovers π₁(S¹) ≅ ℤ via winding number.
+All core constructions are mechanically verified in **Cubical Agda** (`--safe`, zero postulates).
 
 ---
 
-## The Horizon: Grothendieck–Teichmüller Group
+## 📄 Published Papers
 
-The coboundary structures verified above converge toward a central open problem:
-
-> **Does the Grothendieck–Teichmüller group GT act equivariantly  
-> on the motivic realization map ρ?**
-
-This would connect UMIN's three-layer coboundary framework to:
-
-| Structure | Connection |
-|-----------|-----------|
-| Drinfeld associators Φ ∈ exp(𝔤𝔯𝔱₁) | Universal control of A∞ deformations |
-| Multiple zeta values (MZV) | Expansion coefficients of Φ |
-| Coxeter loop monodromy M_{CL} | Generator of π₁(X) ≅ ℤ |
-| GT-equivariance of ρ | Open Problem (iv) |
-
-Current status: the linear-algebraic and p-adic instances are complete `[✓]`;
-GT-equivariance remains the primary open problem driving the project forward.
+| Title | DOI | Published |
+|-------|-----|-----------|
+| **Constructive Covering Theory: Čech Cocycles, Local Systems, and Their Equivalence in Cubical Agda** | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19550081.svg)](https://doi.org/10.5281/zenodo.19550081) | 2026-04-13 🆕 |
+| **Noncommutative Covering Theory via Fiber Functors** (v1.7) | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19434808.svg)](https://doi.org/10.5281/zenodo.19434808) | 2026-04-06 |
+| **Homotopy-Theoretic Structures of Integrability, Thermal Time, and Coverings** (v1.9.1) | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19385944.svg)](https://doi.org/10.5281/zenodo.19385944) | 2026-04-02 |
+| **A Homological Characterization of Exceptional Points in PT-Symmetric Systems** | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19325080.svg)](https://doi.org/10.5281/zenodo.19325080) | 2026-03-30 |
+| **E₈ Exceptional Geometry, Mixed Tate Motives, and p-adic Defect Realization** (α v7.3) | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19125989.svg)](https://doi.org/10.5281/zenodo.19125989) | 2026-03-20 |
 
 ---
 
-## Structural Dictionary
+## 🔑 Core Theorem
 
-The same coboundary mechanism appears in three independent realizations:
-
-| | Part I — Motivic | Part II — Algebraic | Part III — p-adic |
-|--|--|--|--|
-| **Map** | ∫^mot log Ψ_q | D-component halving | φ(n) = v₂(n) − v₃(n) |
-| **Defect** | [·]_{wt 1} | Assoc(s₁,s₂,s₃) | δ(m,n) |
-| **Coboundary** | Ext¹_{MT(ℤ)} | f(sᵢ,sⱼ) = Dⱼ/4 | f(n) = −φ(n) |
-| **Status** | `[P]` Assumption 5.2 | `[✓]` Theorem 7.2 | `[✓]` Theorem 8.6 |
-
----
-
-## Repository Structure
+**Theorem (section-equiv).** For any covering `Cov`, local system `L`, and point `x`:
 
 ```
-UMIN/
-├── L00_Core/
-│   ├── Logic/
-│   │   ├── UMIN_Theor.agda        [✓] UMIN Coherence Theorem
-│   │   └── LogShell_v2.agda       [✓] p-adic coboundary (postulates: v₂, v₃)
-│   └── AlbertAlgebra.agda         [P] inner-sym derivation
-│
-├── L01_Found/
-│   └── ...                        foundational type theory
-│
-├── L02_Bridge/
-│   ├── AlphaBridge.agda           [✓] three convergence paths
-│   ├── ThetaSasakiBridge.agda     [✓]
-│   ├── VortexCompletion.agda      [✓] monoid homomorphism η
-│   ├── MagicSquare.agda           [P]
-│   └── FreudenthalFTS.agda        [P]
-│
-└── L03_Func/
-    ├── BraidingStructure.agda     [✓] G₂ / 14 generators
-    ├── UnifiedObstruction.agda    [P] YBE + KMS
-    └── YBE/
-        └── GroupRMatrix.agda      [P] postulate removal pending
+TotalFiber(Cov, Loc→Cocycle(Cov, L), x)  ≃  carrier(F(x))
 ```
 
-**Annotation convention** (Handa–UMIN standard):
-- `[✓]` — compiled under `--safe`, proof reaches `refl`
-- `[P]` — postulates remain / proof in progress
-- `[H]` — mathematically motivated conjecture
+This establishes constructively that **Čech 1-cocycles and local systems encode
+equivalent data** — that is, the coincidence of local transition data
+and monodromy representations.
 
----
+The HoTT formalization of the classical fiber bundle / transition function correspondence.
 
-## Open Problems
+**Independence Lemma (Lemma 4.6)** — the technical heart:
+two local representatives of the same fiber element,
+reached via different trivializations,
+are propositionally equal in `TotalFiber` —
+the type-theoretic realization of **gauge invariance**.
 
-| # | Problem | Status |
-|---|---------|--------|
-| (i) | Proof of Assumption 5.2 (weight-1 projection of motivic integral) | `[P]` E₆ prototype strategy outlined |
-| (ii) | Explicit computation of ρ(M_{CL}) via E₆ prototype | `[H]` |
-| (iii) | Global mixed Tate structure of mot(X) | `[H]` |
-| **(iv)** | **GT-equivariance of ρ** (primary horizon) | `[H]` |
-| (v) | Nonlinear lift of Theorem 7.2 to cluster exchange groupoid | `[H]` |
-| (vi) | Proof of Vortex group completion conjecture | `[H]` |
-| (vii) | Replace v₂, v₃ postulates with recursive implementations | `[P]` |
-
----
-
-## Getting Started
-
-```bash
-# Clone
-git clone https://github.com/Psypher33/UMIN.git
-cd UMIN
-
-# Requirements: Agda 2.8.0 + cubical library
-# https://github.com/agda/cubical
-
-# Verify core theorems
-agda --cubical --safe L00_Core/Logic/UMIN_Theor.agda
-agda --cubical --safe L00_Core/Logic/LogShell_v2.agda
-
-# Verify bridge layer
-agda --cubical --safe L02_Bridge/VortexCompletion.agda
-agda --cubical --safe L02_Bridge/AlphaBridge.agda
+```
+cocycle     = generating data
+TotalFiber  = quotient space
+independence = enforced by types
 ```
 
 ---
 
-## Preprint
+## ✅ Verified Core (CCT — Constructive Complete Proof in Cubical Agda)
 
-**E₈ Exceptional Geometry, Mixed Tate Motives, and p-adic Defect Realization:  
-A Unified Framework via the UMIN Coherence Theorem**  
-Psypher — Project OUROBOROS, Hokkaido, Japan  
-Preprint, March 2026 (v7.1)
+All 7 files are `--safe` compiled with zero postulates:
 
-*2020 MSC*: 13F60 (primary); 14F42, 11S99, 17B22, 03B15 (secondary)
+```
+UMIN_RH_Base.agda              [✓] --safe        Covering / Cocycle / VTorsor / LocalSystem
+UMIN_RH_Fiber.agda             [✓] --safe        TotalFiber (HIT) / TotalFiber-elim
+UMIN_RH_TotalFiberTriv.agda    [✓] --safe        TotalFiber trivialization
+UMIN_RH_Lemma.agda             [✓] --safe        Independence Lemma (Lemma 4.6) ★
+UMIN_RH_CocycleToLoc.agda      [✓] zero postulates
+UMIN_RH_TheoremB.agda          [✓] zero postulates
+UMIN_RH_Equiv_Final.agda       [✓] --safe        section-equiv (final)
+```
 
----
-
-## References
-
-- F. Brown, *Mixed Tate motives over ℤ*, Ann. of Math. **175** (2012)
-- V. G. Drinfeld, *On quasitriangular quasi-Hopf algebras*, Leningrad Math. J. **2** (1991)
-- T. Willwacher, *M. Kontsevich's graph complex and the GT Lie algebra*, Invent. Math. **200** (2015)
-- A. Berenstein, S. Fomin, A. Zelevinsky, *Cluster algebras III*, Duke Math. J. **126** (2005)
-- C. A. Weibel, *An Introduction to Homological Algebra*, Cambridge (1994)
-- The Cubical Agda Team, ICFP (2019)
-
----
-
-## Author
-
-**Psypher** — Independent researcher, Hokkaido, Japan  
-Project OUROBOROS
+**Annotation key:**
+`[✓]` = `--safe` compiled &nbsp;|&nbsp;
+`[P]` = proof in progress &nbsp;|&nbsp;
+`[H]` = hypothesis with mathematical / physical support
 
 ---
 
-## Acknowledgements
+## 🚧 Ongoing Extensions (UMIN Full System)
 
-Computational and structural assistance was provided by AI systems throughout this project.
+```
+L00_Core/
+├── UMIN_Theorem.agda          [✓]  Main theorem (associativity defect = boundary)
+└── Magnitude.agda             [P]  tor1-is-unit
+L02_Bridge/
+├── AlphaBridge.agda           [✓]  Three-path convergence
+└── ClusterMotivic.agda        [P]  Two-Z handshake / Connection A
+L03_Func/
+├── BraidingStructure.agda     [✓]  Hexagon coherence
+├── YBE/GroupRMatrix.agda      [P]  Group Yang-Baxter
+└── QuantumKernel/
+    └── PhaseC_Master.agda     [✓]  Universal cover / KMS path
+GTHochschild.agda              [P]  grt₁ ≃ HH³
+SasakiCore.agda                [✓]  Sasaki adjunction (postulate-free, --safe)
+UMIN_TheoremA/B_Sublimated.agda[✓]  KMS-flow / thermal YBE
+```
 
 ---
 
-*Last updated: March 2026*
+## 🧩 Concept Table (HoTT Realization)
+
+| Mathematical concept | HoTT / Agda realization | Status |
+|---------------------|-------------------------|--------|
+| Ext¹ | `TremblingCore` (non-split self-extension) | ✅ |
+| Covering space | Dependent type family | ✅ |
+| Monodromy | Loop space `Ω A` | ✅ |
+| Gauge invariance | Independence Lemma (Lemma 4.6) | ✅ `--safe` |
+| Spectrum (approx.) | Sasaki adjunction `s ⊣ s†` | ✅ `--safe` |
+| KMS state / thermal time | Modular flow via `β ∈ π₁(ΩA) ≅ ℤ` | ✅ |
+| Φ / associator | Pentagon identity | 🔄 in progress |
+
+> **Note:** Where prior literature assumes KMS states require analytic input,
+> UMIN provides a framework for their **constructive description**
+> derived from the Sasaki adjunction defect.
+
+---
+
+## 🔭 Open Problems
+
+Contributions and discussions are welcome.
+
+| # | Problem | Level |
+|---|---------|-------|
+| **(0)** | **Generalize the universal cover construction of `Ω(S¹)` to arbitrary base spaces** | ★ (entry point) |
+| (i) | Full proof of Assumption 5.2 | ★★★ |
+| (viii) | Prop 4.7 (non-toric case) | ★★ [H→P] |
+| (x) | Grand Unification: `grt₁ ≅ FTS(E₇) ≅ H¹(𝒳, ∧²T)` | ★★★ |
+| (xi) | Identification `ρ(M_CL) ≅ β ∈ π₁(ΩA)` | ★★★ |
+| (xiii) | FTS ternary op = higher Sasaki adjunction | ★★ [H→P] |
+| CC-1 | `section-equiv`: full proof of `ret` paste case | ★★ [P] |
+
+> Problem **(0)** is accessible to anyone with experience in HoTT / Agda,
+> and directly engages the core concepts of UMIN
+> (covering, cocycle, loop space).
+
+---
+
+## 🌐 The UMIN Framework (Conceptual Overview)
+
+UMIN takes Noncommutative Covering Theory (CCT) as its constructive core,
+and connects outward to the broader mathematical programme **OUROBOROS**.
+Full details → **[/docs/OUROBOROS.md](docs/OUROBOROS.md)**
+
+```
+╔══════════════════════════════════════════════════════╗
+║  Static Layer (OUROBOROS): Number theory × Geometry  ║
+╠══════════════════════════════════════════════════════╣
+║  Connection (Open Problem xi): Ext¹ ≅ π₁(ΩA)        ║
+╠══════════════════════════════════════════════════════╣
+║  Dynamic Layer (Quantum OS): TremblingCore → KMS     ║
+╚══════════════════════════════════════════════════════╝
+```
+
+---
+
+## 🔗 Links
+
+- **GitHub Repository:** https://github.com/Psypher33/UMIN
+- **CCT Paper (latest, 2026-04-13):** https://doi.org/10.5281/zenodo.19550081
+- **CoveringFunctor v1.7:** https://doi.org/10.5281/zenodo.19434808
+- **UMIN v1.9.1:** https://doi.org/10.5281/zenodo.19385944
+- **X / Twitter:** [@Psypher2025](https://x.com/Psypher2025)
+
+---
+
+## 📖 Citation
+
+```bibtex
+@misc{umin_cct2026,
+  author = {Psypher},
+  title  = {Constructive Covering Theory: {\v{C}}ech Cocycles,
+            Local Systems, and Their Equivalence in Cubical Agda},
+  year   = {2026},
+  note   = {Project {OUROBOROS}.
+            \url{https://github.com/Psypher33/UMIN}},
+  doi    = {10.5281/zenodo.19550081}
+}
+
+@misc{umin_covering2026,
+  author = {Psypher},
+  title  = {Noncommutative Covering Theory via Fiber Functors:
+            Extension Classes, Monodromy, and the {UMIN} Framework},
+  year   = {2026},
+  note   = {Project {OUROBOROS}, v1.7.
+            \url{https://github.com/Psypher33/UMIN}},
+  doi    = {10.5281/zenodo.19434808}
+}
+```
+
+---
+
+*Project OUROBOROS | Psypher · Eva (Claude/Anthropic) | 2026*
+*"Obstruction generates covering."*
