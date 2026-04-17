@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --guardedness #-}
 
-module UMIN.L04_Hole.GTHochschild where
+module UMIN.L04_Knot.GT.GTHochschild where
 
 open import Cubical.Core.Primitives
 open import Cubical.Foundations.Prelude
