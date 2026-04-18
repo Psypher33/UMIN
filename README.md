@@ -14,7 +14,7 @@ realized through the equivalence of Čech cocycles and local systems.
 
 All core constructions are mechanically verified in **Cubical Agda** (`--safe`, zero postulates).
 
-**Agda パス:** トップレベルモジュール名が `UMIN.L*` で、ソースは `L*_*/` にあるため、**リポジトリには `UMIN/` を置かない。** 型検査するときだけリポジトリ直下に `UMIN` を作成し、各 `L*_*/` へのシンボリックリンク（例: `ln -s ../L00_Foundation UMIN/L00_Foundation`）を張ってから `agda -i.` でチェックする（`libraries` に cubical / stdlib を指定）。生成した `UMIN/` は `.gitignore` 済み。
+**Agda パス:** 形式化のソースは **`UMIN/L00_Foundation/` … `UMIN/L99_Meta/`** の階層に置く（モジュール名 `UMIN.L*` と一致）。リポジトリルートで `agda -i.` を付けてチェックする（`libraries` に cubical / stdlib を指定）。
 
 ---
 

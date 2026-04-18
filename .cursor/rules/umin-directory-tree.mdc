@@ -9,13 +9,13 @@ alwaysApply: true
 
 ## 出力スタイル
 
-- **ツリー記法**: リポジトリ**ルート**（または `L00_Foundation/` … を並べたレイヤー）を根に、`├──` `└──` `│` を使ったテキストツリー（ユーザーが以前承認した形式）。ローカル専用の `UMIN/` シンボリックリンク束はツリーに含めない（`.gitignore`）。
+- **ツリー記法**: 形式化の本体は **`UMIN/`** を根に、`L00_Foundation/` … `L99_Meta/` をその下に並べたツリー。リポジトリ全体のツリーでは、ルート直下の **`UMIN/`** を示してから枝を展開する。`├──` `└──` `│` を使う（ユーザーが以前承認した形式）。
 - **マークダウン**: そのままコピーできるよう、ツリー全体を **フェンス付きコードブロック**（言語タグは無しで可）で囲む。
 
 ## 含めるもの
 
 - **`.agda`**: プロジェクト内のすべて（サブフォルダごとに列挙）。
-- **ルート**: 次の **並びを優先**する — `agda-libraries/` → `CollectionOfPapers/` → `L00_Core/` … `L99_Meta/` → `libraries` → `python/` → `README.md` → `LICENSE`。
+- **ルート**: 次の **並びを優先**する — `agda-libraries/` → `CollectionOfPapers/` → **`UMIN/`**（`L00_Foundation/` … `L99_Meta/`）→ `libraries` → `python/` → `README.md` → `LICENSE`。
 - **`libraries`**: ファイルであることを示す行末コメントを付ける —  
   `libraries          # Agda のライブラリパス指定用（ファイル）`
 - **`python/`**: 直下のスクリプト等（例: `octonion_monte_carlo.py`）を 1 行でよいので含める。
