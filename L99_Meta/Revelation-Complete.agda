@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --guardedness --no-import-sorts #-}
 
-module UMIN.Revelation-Complete where
+module UMIN.L99_Meta.Revelation-Complete where
 
 open import Agda.Primitive
 open import Cubical.Foundations.Prelude

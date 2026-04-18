@@ -14,6 +14,8 @@ realized through the equivalence of Čech cocycles and local systems.
 
 All core constructions are mechanically verified in **Cubical Agda** (`--safe`, zero postulates).
 
+**Agda パス:** トップレベルモジュール名が `UMIN.L*` のため、リポジトリ直下の `UMIN/` に各 `L*_*/` へのシンボリックリンクを置いてから `-i.` でチェックする（`libraries` に cubical / stdlib を指定）。
+
 ---
 
 ## 📄 Published Papers
@@ -91,7 +93,8 @@ L03_Func/
 ├── YBE/GroupRMatrix.agda      [P]  Group Yang-Baxter
 └── QuantumKernel/
     └── PhaseC_Master.agda     [✓]  Universal cover / KMS path
-GTHochschild.agda              [P]  grt₁ ≃ HH³
+GTHochschild.agda              [P]  grt₁ → HH³（埋め込み）／条件付き `grt1-embeds-HH3-at`（postulate 多量のため `--safe` 非対象）
+KMSFlowLaws_MatrixCore.agda    [✓]  `M_n`（ℚ×ℚ 成分）+ `KMSFlowLaws` 具体インスタンス（`--safe`）
 SasakiCore.agda                [✓]  Sasaki adjunction (postulate-free, --safe)
 UMIN_TheoremA/B_Sublimated.agda[✓]  KMS-flow / thermal YBE
 ```

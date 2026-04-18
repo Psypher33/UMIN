@@ -1,10 +1,10 @@
 {-# OPTIONS --cubical --guardedness --no-import-sorts #-}
 
-module UMIN.Simulation-TwoPoints where
+module UMIN.L99_Meta.Simulation-TwoPoints where
 
-open import UMIN.Grand-Unified-Protocol
+open import UMIN.L99_Meta.Grand-Unified-Protocol
 
-open import Cubical.Core.Everything
+-- Cubical.Core.Everything は cubical に無い。Prelude が Core を含む。
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat 
   using (znots) 
@@ -86,4 +86,4 @@ my-two-point-universe = record
 module Calc = MagnitudeCalc my-two-point-universe
 
 Universe-Magnitude : SuperOctonion
-Universe-Magnitude = Calc.TotalMagnitudeSuperScalar.body (Universe-Magnitude fzero)
+Universe-Magnitude = Calc.TotalMagnitude

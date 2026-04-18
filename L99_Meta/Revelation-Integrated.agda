@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --guardedness --no-import-sorts #-}
 
-module UMIN.Revelation-Integrated where
+module UMIN.L99_Meta.Revelation-Integrated where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels

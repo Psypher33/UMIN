@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --guardedness #-}
 
-module UMIN.IUT-Logic-Core where
+module UMIN.L99_Meta.IUT-Logic-Core where
 
 -- transport は Prelude に含まれています
 open import Cubical.Foundations.Prelude

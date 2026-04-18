@@ -1,9 +1,9 @@
 {-# OPTIONS --cubical --guardedness --no-import-sorts #-}
 
-module UMIN.Grand-Unified-Protocol where
+module UMIN.L99_Meta.Grand-Unified-Protocol where
 
 open import Agda.Primitive
-open import Cubical.Core.Everything
+-- Cubical.Core.Everything は cubical に無い。Prelude が Core を含む。
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Nat renaming (ℕ to Nat; zero to zeroℕ; suc to sucℕ) hiding (_+_)

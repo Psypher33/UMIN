@@ -1,10 +1,10 @@
 {-# OPTIONS --cubical --guardedness --no-import-sorts #-}
 
-module UMIN.Simulation-PointOne where
+module UMIN.L99_Meta.Simulation-PointOne where
 
-open import UMIN.Grand-Unified-Protocol
+open import UMIN.L99_Meta.Grand-Unified-Protocol
 
-open import Cubical.Core.Everything
+-- Cubical.Core.Everything は cubical に無い。Prelude が Core を含む。
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat renaming (zero to zeroℕ; suc to sucℕ)
 open import Cubical.Data.Fin.Base using (Fin; fzero)
