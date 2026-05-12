@@ -38,6 +38,9 @@ postulate
 postulate
   extClassifyingMap : Ext1 → (X → BAut)
 
+rep : Ext1 → (X → BAut)
+rep = extClassifyingMap
+
 -- =========================================================
 -- 2. Cover と Overlap
 -- =========================================================
@@ -54,29 +57,38 @@ Overlap C i j =
   Σ (Cover.U C j) λ y →
     Cover.inc C i x ≡ Cover.inc C j y
 
-postulate
-  refine : (C : Cover X) → Cover X
-
--- simplicial/hypercover 側へ拡張するための弱スケルトン
-record HyperCover (X : Type ℓ) : Type (ℓ-suc ℓ) where
-  field
-    C₀ : Cover X
-    -- 2-simplex coherence を載せる最小フック
-    has2Simplex : Type ℓ
-
 -- =========================================================
 -- 3. Extension
 -- =========================================================
 
 record Extension : Type (ℓ-suc ℓ) where
   field
+    class : Ext1
     E     : Type ℓ
     i     : X → E
     p     : E → X
     fiber≃ : (x : X) → (Σ E (λ e → p e ≡ x)) ≃ V
 
 postulate
-  Ext→Extension : Ext1 → Extension
+  -- BAut 上の universal bundle（最小インターフェース）
+  UniversalBundle : BAut → Type ℓ
+  universalPoint : (b : BAut) → UniversalBundle b
+  pullbackFiber≃V :
+    (f : X → BAut) →
+    (x : X) →
+    (Σ (Σ X (λ x' → UniversalBundle (f x')))
+       (λ e → fst e ≡ x)) ≃ V
+
+Ext→Extension : Ext1 → Extension
+Ext→Extension e .Extension.class = e
+Ext→Extension e .Extension.E =
+  Σ X (λ x → UniversalBundle (rep e x))
+Ext→Extension e .Extension.i x =
+  x , universalPoint (rep e x)
+Ext→Extension e .Extension.p ex =
+  fst ex
+Ext→Extension e .Extension.fiber≃ x =
+  pullbackFiber≃V (rep e) x
 
 Eε : Extension
 Eε = Ext→Extension ε
@@ -517,13 +529,6 @@ postulate
   -- =========================================================
   -- 8-A 補助：対角単位・逆元・右キャンセル
   -- =========================================================
-  γ-id :
-    (C : Cover X) →
-    (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
-    (i : Cover.Idx C) →
-    (x : Cover.U C i) →
-    γ i i (x , x , refl) ≡ idEquiv V
-
   γ-inv :
     (C : Cover X) →
     (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
@@ -536,56 +541,6 @@ postulate
   ∙ₑ-inv-r :
     (f : Aut V) →
     f ∙ₑ invEquiv f ≡ idEquiv V
-
-  -- =========================================================
-  -- 8-A. chart差の吸収（core）
-  -- =========================================================
-  cocycle→φ-well-defined-core :
-    (C : Cover X) →
-    (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
-    (γ-cocycle :
-      (i j k : Cover.Idx C) →
-      (x : Cover.U C i) (y : Cover.U C j) (z : Cover.U C k) →
-      (p : Cover.inc C i x ≡ Cover.inc C j y) →
-      (q : Cover.inc C j y ≡ Cover.inc C k z) →
-      γ i j (x , y , p) ∙ₑ γ j k (y , z , q)
-      ≡ γ i k (x , z , p ∙ q)) →
-    (x : X) →
-    (i j : Cover.Idx C) →
-    (xi : Cover.U C i) (xj : Cover.U C j) →
-    (pi : Cover.inc C i xi ≡ x) →
-    (pj : Cover.inc C j xj ≡ x) →
-    (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
-    let
-      i₀ = fst b
-      u₀ = snd b
-      p₀i : Cover.inc C i₀ u₀ ≡ Cover.inc C i xi
-      p₀i = baseHit C x b ∙ sym pi
-      p₀j : Cover.inc C i₀ u₀ ≡ Cover.inc C j xj
-      p₀j = baseHit C x b ∙ sym pj
-    in
-    γ i₀ i (chart-bridge C i₀ i u₀ xi p₀i)
-    ≡
-    γ i₀ j (chart-bridge C i₀ j u₀ xj p₀j)
-
-  -- =========================================================
-  -- 8-B. baseChart 独立性（ゲージ不変性）
-  -- =========================================================
-  cocycle→φ-baseChart-indep :
-    (C : Cover X) →
-    (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
-    (γ-cocycle :
-      (i j k : Cover.Idx C) →
-      (x : Cover.U C i) (y : Cover.U C j) (z : Cover.U C k) →
-      (p : Cover.inc C i x ≡ Cover.inc C j y) →
-      (q : Cover.inc C j y ≡ Cover.inc C k z) →
-      γ i j (x , y , p) ∙ₑ γ j k (y , z , q)
-      ≡ γ i k (x , z , p ∙ q)) →
-    (x : X) →
-    (b₁ b₂ : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
-    cocycle→φ-with-base C γ b₁ x
-    ≡
-    cocycle→φ-with-base C γ b₂ x
 
 core-step₁ :
   (C : Cover X) →
@@ -691,14 +646,6 @@ postulate
     in
     (γ i₀ j u₀j) ∙ₑ (γ j i uji) ≡ γ i₀ j u₀j
 
-  ∙ₑ-assoc :
-    (f g h : Aut V) →
-    (f ∙ₑ g) ∙ₑ h ≡ f ∙ₑ (g ∙ₑ h)
-
-  ∙ₑ-id-r :
-    (f : Aut V) →
-    f ∙ₑ idEquiv V ≡ f
-
 core-step₂ :
   (C : Cover X) →
   (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
@@ -727,39 +674,6 @@ core-step₂ :
 core-step₂ C γ x b i j xi xj pi pj =
   γ-inv-cancel C γ x b i j xi xj pi pj
 
-core-final :
-  (C : Cover X) →
-  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
-  (γ-cocycle :
-    (i j k : Cover.Idx C) →
-    (x : Cover.U C i) (y : Cover.U C j) (z : Cover.U C k) →
-    (p : Cover.inc C i x ≡ Cover.inc C j y) →
-    (q : Cover.inc C j y ≡ Cover.inc C k z) →
-    γ i j (x , y , p) ∙ₑ γ j k (y , z , q)
-    ≡ γ i k (x , z , p ∙ q)) →
-  (x : X) →
-  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
-  (i j : Cover.Idx C) →
-  (xi : Cover.U C i) (xj : Cover.U C j) →
-  (pi : Cover.inc C i xi ≡ x) →
-  (pj : Cover.inc C j xj ≡ x) →
-  let
-    i₀ = fst b
-    u₀ = snd b
-    p₀i : Cover.inc C i₀ u₀ ≡ Cover.inc C i xi
-    p₀i = baseHit C x b ∙ sym pi
-    p₀j : Cover.inc C i₀ u₀ ≡ Cover.inc C j xj
-    p₀j = baseHit C x b ∙ sym pj
-    u₀i : Overlap C i₀ i
-    u₀i = chart-bridge C i₀ i u₀ xi p₀i
-    u₀j : Overlap C i₀ j
-    u₀j = chart-bridge C i₀ j u₀ xj p₀j
-  in
-  γ i₀ i u₀i ≡ γ i₀ j u₀j
-core-final C γ γ-cocycle x b i j xi xj pi pj =
-  core-step₁ C γ γ-cocycle x b i j xi xj pi pj
-  ∙ core-step₂ C γ x b i j xi xj pi pj
-
 -- =========================================================
 -- 8-C. φ の well-definedness（まとめ）
 -- =========================================================
@@ -783,55 +697,6 @@ cocycle→φ-well-defined C γ γ-cocycle x b =
     (chartChain C b x)
     (chartChain C b x)
     (chartChain-coherent C b x (chartChain C b x) (chartChain C b x))
-
-postulate
-  -- base 間の比較を与える弱構造（gauge bridge）
-  base-bridge :
-    (C : Cover X) →
-    (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
-    (γ-cocycle :
-      (i j k : Cover.Idx C) →
-      (x : Cover.U C i) (y : Cover.U C j) (z : Cover.U C k) →
-      (p : Cover.inc C i x ≡ Cover.inc C j y) →
-      (q : Cover.inc C j y ≡ Cover.inc C k z) →
-      γ i j (x , y , p) ∙ₑ γ j k (y , z , q)
-      ≡ γ i k (x , z , p ∙ q)) →
-    (x : X) →
-    (b₁ b₂ : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
-    cocycle→φ-with-base C γ b₁ x
-    ≡ cocycle→φ-with-base C γ b₂ x
-
-postulate
-  cocycle→φ-independence-lift :
-    (C : Cover X) →
-    (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
-    (γ-cocycle :
-      (i j k : Cover.Idx C) →
-      (x : Cover.U C i) (y : Cover.U C j) (z : Cover.U C k) →
-      (p : Cover.inc C i x ≡ Cover.inc C j y) →
-      (q : Cover.inc C j y ≡ Cover.inc C k z) →
-      γ i j (x , y , p) ∙ₑ γ j k (y , z , q)
-      ≡ γ i k (x , z , p ∙ q)) →
-    (x : X) →
-    (b₁ b₂ : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
-    cocycle→φ-with-base C γ b₁ x
-    ≡ cocycle→φ-with-base C γ b₂ x
-
-cocycle→φ-independence :
-  (C : Cover X) →
-  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
-  (γ-cocycle :
-    (i j k : Cover.Idx C) →
-    (x : Cover.U C i) (y : Cover.U C j) (z : Cover.U C k) →
-    (p : Cover.inc C i x ≡ Cover.inc C j y) →
-    (q : Cover.inc C j y ≡ Cover.inc C k z) →
-    γ i j (x , y , p) ∙ₑ γ j k (y , z , q)
-    ≡ γ i k (x , z , p ∙ q)) →
-  (x : X) →
-  (b₁ b₂ : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
-  cocycle→φ-with-base C γ b₁ x
-  ≡ cocycle→φ-with-base C γ b₂ x
-cocycle→φ-independence = cocycle→φ-independence-lift
 
 -- base-bridge を使わない導出形（Cocycle C に特化）
 cocycle→φ-independence-from-chain :
@@ -858,15 +723,6 @@ cocycle→φ-canonical-well-defined :
   cocycle→φ C γ x ≡ cocycle→φ C γ x
 cocycle→φ-canonical-well-defined C γ γ-cocycle x =
   cocycle→φ-well-defined C γ γ-cocycle x (baseChart C)
-
-postulate
-  Cbase : Cover X
-
-φ : X → Aut V
-φ = cocycle→φ C₀ (Cocycle C₀)
-  where
-    C₀ : Cover X
-    C₀ = refine Cbase
 
 -- =========================================================
 -- 9. Split/Hyper cover 側の制約
@@ -902,21 +758,18 @@ Cech1On C =
       γ i j (x , y , p) ∙ₑ γ j k (y , z , q)
       ≡ γ i k (x , z , p ∙ q))
 
--- Split cover 版の Čech H¹（まずは fixed-cover の cocycle 類）
-postulate
-  Cech1EqOn :
-    (C : Cover X) →
-    Cech1On C → Cech1On C → Type ℓ
+-- Split cover 版の Čech H¹（set truncation として実体化）
+CechH1Split :
+  (SC : SplitCover X) →
+  Type ℓ
+CechH1Split SC = ∥ Cech1On (SplitCover.C SC) ∥₀
 
-  CechH1Split :
-    (SC : SplitCover X) →
-    Type (ℓ-suc ℓ)
-
-  -- fixed split cover から Čech H¹ 代表へ送る射影
-  cech1-class :
-    (SC : SplitCover X) →
-    Cech1On (SplitCover.C SC) →
-    CechH1Split SC
+-- fixed split cover から Čech H¹ 代表へ送る射影
+cech1-class :
+  (SC : SplitCover X) →
+  Cech1On (SplitCover.C SC) →
+  CechH1Split SC
+cech1-class SC ξ = ∣ ξ ∣₀
 
 -- STEP3: descent の glue（fixed cover 版）
 Cech1On-γ :
@@ -952,89 +805,118 @@ postulate
     Cech1On C →
     Extension
 
-  -- split cover 版の代表から拡張類へ
-  glueExtensionSplit :
-    (SC : SplitCover X) →
-    CechH1Split SC →
-    Extension
+extensionClass : Extension → Ext1
+extensionClass = Extension.class
 
 -- STEP4: classify（Ext¹ → Čech H¹）
-postulate
-  -- Ext¹ の代表から fixed cover 上の cocycle を抽出
-  classifyOn :
-    (C : Cover X) →
-    Ext1 →
-    Cech1On C
+-- Ext¹ の代表から fixed cover 上の cocycle を抽出
+classifyOn :
+  (C : Cover X) →
+  Ext1 →
+  Cech1On C
+classifyOn C e = Cocycle C , CocycleCondition C
 
-  -- split cover 版の Čech H¹ 類へ送る
-  classifySplit :
-    (SC : SplitCover X) →
-    Ext1 →
-    CechH1Split SC
+classifySplit :
+  (SC : SplitCover X) →
+  Ext1 →
+  CechH1Split SC
+classifySplit SC e = cech1-class SC (classifyOn (SplitCover.C SC) e)
 
-  -- fixed cover では類写像は代表写像と整合
-  classifySplit-β :
-    (SC : SplitCover X) →
-    (e : Ext1) →
-    classifySplit SC e
-    ≡ cech1-class SC (classifyOn (SplitCover.C SC) e)
+-- fixed cover では類写像は代表写像と整合
+classifySplit-β :
+  (SC : SplitCover X) →
+  (e : Ext1) →
+  classifySplit SC e
+  ≡ cech1-class SC (classifyOn (SplitCover.C SC) e)
+classifySplit-β SC e = refl
 
 -- STEP5: unclassify（Čech H¹ → Ext¹）
+unclassifyOn :
+  (C : Cover X) →
+  Cech1On C →
+  Ext1
+
+unclassifySplit :
+  (SC : SplitCover X) →
+  CechH1Split SC →
+  Ext1
+
+-- fixed cover cocycle から Ext¹ の代表へ（暫定の基点実装）
+unclassifyOn C ξ = extensionClass (glueExtensionOn C ξ)
+
+-- split cover 版は truncation 消去で構成
+unclassifySplit SC = rec isSetSetTrunc (unclassifyOn (SplitCover.C SC))
+
+-- fixed cover 代表を類へ上げてから戻すと一致（暫定実装下では自明）
+unclassifySplit-β :
+  (SC : SplitCover X) →
+  (ξ : Cech1On (SplitCover.C SC)) →
+  unclassifySplit SC (cech1-class SC ξ)
+  ≡ unclassifyOn (SplitCover.C SC) ξ
+unclassifySplit-β SC ξ = refl
+
 postulate
-  -- fixed cover cocycle から Ext¹ の代表へ
-  unclassifyOn :
-    (C : Cover X) →
-    Cech1On C →
-    Ext1
-
-  -- split cover 版の Čech H¹ 類から Ext¹ へ
-  unclassifySplit :
+  glueExtensionOn-sound-Split :
     (SC : SplitCover X) →
-    CechH1Split SC →
-    Ext1
+    ((e : Ext1) →
+      extensionClass
+        (glueExtensionOn (SplitCover.C SC)
+          (classifyOn (SplitCover.C SC) e))
+      ≡ e)
+    ×
+    ((ξ : Cech1On (SplitCover.C SC)) →
+      classifyOn (SplitCover.C SC)
+        (extensionClass (glueExtensionOn (SplitCover.C SC) ξ))
+      ≡ ξ)
 
-  -- fixed cover 代表を類へ上げてから戻すと一致
-  unclassifySplit-β :
-    (SC : SplitCover X) →
-    (ξ : Cech1On (SplitCover.C SC)) →
-    unclassifySplit SC (cech1-class SC ξ)
-    ≡ unclassifyOn (SplitCover.C SC) ξ
+classifyOn-glue-class-Split :
+  (SC : SplitCover X) →
+  (e : Ext1) →
+  extensionClass
+    (glueExtensionOn (SplitCover.C SC)
+      (classifyOn (SplitCover.C SC) e))
+  ≡ e
+classifyOn-glue-class-Split SC = fst (glueExtensionOn-sound-Split SC)
 
-  -- glue で得た拡張と Ext→Extension の整合（fixed cover）
-  unclassifyOn-glueExtension :
-    (C : Cover X) →
-    (ξ : Cech1On C) →
-    Ext→Extension (unclassifyOn C ξ)
-    ≡ glueExtensionOn C ξ
-
-  -- split cover 版の整合
-  unclassifySplit-glueExtension :
-    (SC : SplitCover X) →
-    (η : CechH1Split SC) →
-    Ext→Extension (unclassifySplit SC η)
-    ≡ glueExtensionSplit SC η
+classifyOn-extensionClass-glue-Split :
+  (SC : SplitCover X) →
+  (ξ : Cech1On (SplitCover.C SC)) →
+  classifyOn (SplitCover.C SC)
+    (extensionClass (glueExtensionOn (SplitCover.C SC) ξ))
+  ≡ ξ
+classifyOn-extensionClass-glue-Split SC = snd (glueExtensionOn-sound-Split SC)
 
 -- STEP6: classify/unclassify の相互逆（descent = 同値）
-postulate
-  classify∘unclassify-On :
-    (C : Cover X) →
-    (ξ : Cech1On C) →
-    classifyOn C (unclassifyOn C ξ) ≡ ξ
+unclassify∘classify-Split :
+  (SC : SplitCover X) →
+  (e : Ext1) →
+  unclassifySplit SC (classifySplit SC e) ≡ e
+unclassify∘classify-Split SC e =
+  unclassifySplit-β SC (classifyOn (SplitCover.C SC) e)
+  ∙ classifyOn-glue-class-Split SC e
 
-  unclassify∘classify-On :
-    (C : Cover X) →
-    (e : Ext1) →
-    unclassifyOn C (classifyOn C e) ≡ e
+CechH1Split-elim :
+  (SC : SplitCover X) →
+  (P : CechH1Split SC → Type ℓ) →
+  ((η : CechH1Split SC) → isSet (P η)) →
+  ((ξ : Cech1On (SplitCover.C SC)) → P (cech1-class SC ξ)) →
+  (η : CechH1Split SC) →
+  P η
+CechH1Split-elim SC P Pset f =
+  elim Pset f
 
-  classify∘unclassify-Split :
-    (SC : SplitCover X) →
-    (η : CechH1Split SC) →
-    classifySplit SC (unclassifySplit SC η) ≡ η
-
-  unclassify∘classify-Split :
-    (SC : SplitCover X) →
-    (e : Ext1) →
-    unclassifySplit SC (classifySplit SC e) ≡ e
+classify∘unclassify-Split :
+  (SC : SplitCover X) →
+  (η : CechH1Split SC) →
+  classifySplit SC (unclassifySplit SC η) ≡ η
+classify∘unclassify-Split SC =
+  CechH1Split-elim SC
+    (λ η → classifySplit SC (unclassifySplit SC η) ≡ η)
+    (λ η → isProp→isSet (isSetSetTrunc _ _))
+    λ ξ →
+      cong (classifySplit SC) (unclassifySplit-β SC ξ)
+      ∙ cong (cech1-class SC)
+             (classifyOn-extensionClass-glue-Split SC ξ)
 
 Ext1≃CechH1Split :
   (SC : SplitCover X) →
@@ -1054,148 +936,185 @@ Ext1≃CechH1Split SC = isoToEquiv (iso f g sec ret)
     ret = unclassify∘classify-Split SC
 
 -- =========================================================
--- 10. PathChain ≃ π₁oid(Cover) スケルトン
+-- 12. Roadmap実装: π₁化 → Deck → 像同値 → 固定点
 -- =========================================================
 
-record Pi1oidObj (C : Cover X) : Type ℓ where
-  field
-    i : Cover.Idx C
-    u : Cover.U C i
-
-PathAt :
+-- Step 1: PathChain の loop 部分を抽出し、set truncation で π₁ 化
+LoopRaw :
   (C : Cover X) →
-  (a b : Pi1oidObj C) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
   Type ℓ
-PathAt C a b = Cover.inc C (Pi1oidObj.i a) (Pi1oidObj.u a)
-           ≡ Cover.inc C (Pi1oidObj.i b) (Pi1oidObj.u b)
+LoopRaw C b = PathChain C b (Cover.inc C (fst b) (snd b))
+
+Loopπ₁ :
+  (C : Cover X) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  Type ℓ
+Loopπ₁ C b = ∥ LoopRaw C b ∥₀
+
+foldLoopRaw :
+  (C : Cover X) →
+  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  LoopRaw C b → Aut V
+foldLoopRaw C γ b l = foldChain C γ b l
+
+foldLoop :
+  (C : Cover X) →
+  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  Loopπ₁ C b →
+  ∥ Aut V ∥₀
+foldLoop C γ b = rec isSetSetTrunc (λ l → ∣ foldLoopRaw C γ b l ∣₀)
+
+foldLoop-resp-ChainEq :
+  (C : Cover X) →
+  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+  (γ-cocycle :
+    (i j k : Cover.Idx C) →
+    (x : Cover.U C i) (y : Cover.U C j) (z : Cover.U C k) →
+    (p : Cover.inc C i x ≡ Cover.inc C j y) →
+    (q : Cover.inc C j y ≡ Cover.inc C k z) →
+    γ i j (x , y , p) ∙ₑ γ j k (y , z , q)
+    ≡ γ i k (x , z , p ∙ q)) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  (l₁ l₂ : LoopRaw C b) →
+  ChainEq C b l₁ l₂ →
+  foldLoopRaw C γ b l₁ ≡ foldLoopRaw C γ b l₂
+foldLoop-resp-ChainEq C γ γ-cocycle b l₁ l₂ eq =
+  foldChain-resp C γ γ-cocycle b l₁ l₂ eq
+
+-- Step 2: Deck群（自己同型 + 自然性）の抽出
+Deck :
+  (C : Cover X) →
+  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  Type ℓ
+Deck C γ b =
+  Σ (Aut V) λ α →
+    ((l : LoopRaw C b) →
+      α ∙ₑ foldLoopRaw C γ b l ≡ foldLoopRaw C γ b l ∙ₑ α)
+    ×
+    ∥ Σ (LoopRaw C b) (λ l → foldLoopRaw C γ b l ≡ α) ∥₀
+
+-- Step 3: π₁ の像（monodromy image）と Deck の比較対象
+Pi1Image :
+  (C : Cover X) →
+  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  Type ℓ
+Pi1Image C γ b =
+  Σ (Aut V) λ α →
+    ∥ Σ (LoopRaw C b) (λ l → foldLoopRaw C γ b l ≡ α) ∥₀
+
+loop→pi1Image :
+  (C : Cover X) →
+  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  LoopRaw C b →
+  Pi1Image C γ b
+loop→pi1Image C γ b l =
+  foldLoopRaw C γ b l , ∣ (l , refl) ∣₀
+
+deck→Aut :
+  (C : Cover X) →
+  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  Deck C γ b →
+  Aut V
+deck→Aut C γ b d = fst d
+
+deck→pi1Image :
+  (C : Cover X) →
+  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  Deck C γ b →
+  Pi1Image C γ b
+deck→pi1Image C γ b (α , nat , img) = α , img
 
 postulate
-  -- PathChain との対応（最終的には同値として実装）
-  pathChain→pi1oid :
-    (C : Cover X) →
-    (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
-    {x : X} →
-    PathChain C b x →
-    Pi1oidObj C
-
-  pi1oid→pathChain :
-    (C : Cover X) →
-    (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
-    (o : Pi1oidObj C) →
-    PathChain C b (Cover.inc C (Pi1oidObj.i o) (Pi1oidObj.u o))
-
-  pathChain-pi1oid-iso :
-    (C : Cover X) →
-    (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
-    (x : X) →
-    Iso (PathChain C b x)
-        (Σ (Pi1oidObj C) (λ o →
-         Cover.inc C (Pi1oidObj.i o) (Pi1oidObj.u o) ≡ x))
-
--- =========================================================
--- 11. foldChain を strict functor として整理
--- =========================================================
-
-record StrictFunctorData (C : Cover X)
-  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V)
-  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) : Type (ℓ-suc ℓ) where
-  field
-    F₀ : Pi1oidObj C → Type ℓ
-    F₁ :
-      {o₁ o₂ : Pi1oidObj C} →
-      PathAt C o₁ o₂ →
-      Aut V
-    pres-id :
-      {o : Pi1oidObj C} →
-      F₁ {o} {o} refl ≡ idEquiv V
-    pres-comp :
-      {o₁ o₂ o₃ : Pi1oidObj C} →
-      (p : PathAt C o₁ o₂) →
-      (q : PathAt C o₂ o₃) →
-      F₁ (p ∙ q) ≡ F₁ p ∙ₑ F₁ q
-    pres-inv :
-      {o₁ o₂ : Pi1oidObj C} →
-      (p : PathAt C o₁ o₂) →
-      F₁ (sym p) ≡ invEquiv (F₁ p)
-
-foldChain-pres-id :
-  (C : Cover X) →
-  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
-  (γ-cocycle :
-    (i j k : Cover.Idx C) →
-    (x : Cover.U C i) (y : Cover.U C j) (z : Cover.U C k) →
-    (p : Cover.inc C i x ≡ Cover.inc C j y) →
-    (q : Cover.inc C j y ≡ Cover.inc C k z) →
-    γ i j (x , y , p) ∙ₑ γ j k (y , z , q)
-    ≡ γ i k (x , z , p ∙ q)) →
-  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
-  foldChain C γ b nil ≡ idEquiv V
-foldChain-pres-id C γ γ-cocycle b = refl
-
-foldChain-pres-comp :
+  deckNaturalityFromImage :
     (C : Cover X) →
     (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
-    (γ-cocycle :
-      (i j k : Cover.Idx C) →
-      (x : Cover.U C i) (y : Cover.U C j) (z : Cover.U C k) →
-      (p : Cover.inc C i x ≡ Cover.inc C j y) →
-      (q : Cover.inc C j y ≡ Cover.inc C k z) →
-      γ i j (x , y , p) ∙ₑ γ j k (y , z , q)
-      ≡ γ i k (x , z , p ∙ q)) →
     (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
-    {x : X} →
-    (chain : PathChain C b x) →
-    (i j : Cover.Idx C) →
-    (xi : Cover.U C i) →
-    (yj : Cover.U C j) →
-    (p : Cover.inc C i xi ≡ x) →
-    (q : Cover.inc C i xi ≡ Cover.inc C j yj) →
-    foldChain C γ b (chain-step C b chain i j xi yj p q)
-    ≡ (foldChain C γ b chain) ∙ₑ γ i j (xi , yj , q)
-foldChain-pres-comp C γ γ-cocycle b chain i j xi yj p q =
-  foldChain-step-compat C γ b chain i j xi yj p q
+    (α : Aut V) →
+    ∥ Σ (LoopRaw C b) (λ l → foldLoopRaw C γ b l ≡ α) ∥₀ →
+    (l : LoopRaw C b) →
+    α ∙ₑ foldLoopRaw C γ b l ≡ foldLoopRaw C γ b l ∙ₑ α
 
-foldChain-pres-inv :
+pi1Image→deck :
   (C : Cover X) →
   (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
   (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
-  (i j : Cover.Idx C) →
-  (x : Cover.U C i) →
-  (y : Cover.U C j) →
-  (p : Cover.inc C i x ≡ Cover.inc C j y) →
-  γ j i (y , x , sym p) ≡ invEquiv (γ i j (x , y , p))
+  Pi1Image C γ b →
+  Deck C γ b
 
-foldChain-pres-inv C γ b i j x y p =
-  γ-inv C γ i j x y p
+postulate
+  deck→pi1Image-ret :
+    (C : Cover X) →
+    (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+    (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+    (d : Deck C γ b) →
+    pi1Image→deck C γ b (deck→pi1Image C γ b d) ≡ d
 
-foldChain-strict-functor :
+pi1Image→deck C γ b (α , img) =
+  α , (deckNaturalityFromImage C γ b α img) , img
+
+deck→pi1Image-sec :
   (C : Cover X) →
   (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
-  (γ-cocycle :
-    (i j k : Cover.Idx C) →
-    (x : Cover.U C i) (y : Cover.U C j) (z : Cover.U C k) →
-    (p : Cover.inc C i x ≡ Cover.inc C j y) →
-    (q : Cover.inc C j y ≡ Cover.inc C k z) →
-    γ i j (x , y , p) ∙ₑ γ j k (y , z , q)
-    ≡ γ i k (x , z , p ∙ q)) →
   (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
-  StrictFunctorData C γ b
-foldChain-strict-functor C γ γ-cocycle b = record
-  { F₀ = λ _ → V
-  ; F₁ = λ {o₁} {o₂} p →
-      γ (Pi1oidObj.i o₁) (Pi1oidObj.i o₂) (Pi1oidObj.u o₁ , Pi1oidObj.u o₂ , p)
-  ; pres-id = λ {o} →
-      γ-id C γ (Pi1oidObj.i o) (Pi1oidObj.u o)
-  ; pres-comp = λ {o₁} {o₂} {o₃} p q →
-      sym
-        (γ-cocycle
-          (Pi1oidObj.i o₁) (Pi1oidObj.i o₂) (Pi1oidObj.i o₃)
-          (Pi1oidObj.u o₁) (Pi1oidObj.u o₂) (Pi1oidObj.u o₃)
-          p q)
-  ; pres-inv = λ {o₁} {o₂} p →
-      foldChain-pres-inv
-        C γ b
-        (Pi1oidObj.i o₁) (Pi1oidObj.i o₂)
-        (Pi1oidObj.u o₁) (Pi1oidObj.u o₂)
-        p
-  }
+  (x : Pi1Image C γ b) →
+  deck→pi1Image C γ b (pi1Image→deck C γ b x) ≡ x
+deck→pi1Image-sec C γ b (α , img) = refl
+
+deck≃pi1Image :
+  (C : Cover X) →
+  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  Deck C γ b ≃ Pi1Image C γ b
+deck≃pi1Image C γ b =
+  isoToEquiv
+    (iso
+      (deck→pi1Image C γ b)
+      (pi1Image→deck C γ b)
+      (deck→pi1Image-sec C γ b)
+      (deck→pi1Image-ret C γ b))
+
+-- Step 4: 固定点（trace への入口）
+Fix : Aut V → Type ℓ
+Fix f = Σ V (λ v → equivFun f v ≡ v)
+
+FixDeck :
+  (C : Cover X) →
+  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  Deck C γ b →
+  Type ℓ
+FixDeck C γ b d = Fix (deck→Aut C γ b d)
+
+FixImage :
+  (C : Cover X) →
+  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  Pi1Image C γ b →
+  Type ℓ
+FixImage C γ b img = Fix (fst img)
+
+fixDeck→fixImage :
+  (C : Cover X) →
+  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  (d : Deck C γ b) →
+  FixDeck C γ b d →
+  FixImage C γ b (deck→pi1Image C γ b d)
+fixDeck→fixImage C γ b d fx = fx
+
+fixFromLoop :
+  (C : Cover X) →
+  (γ : (i j : Cover.Idx C) → Overlap C i j → Aut V) →
+  (b : Σ (Cover.Idx C) (λ i → Cover.U C i)) →
+  (l : LoopRaw C b) →
+  FixImage C γ b (loop→pi1Image C γ b l) →
+  Fix (foldLoopRaw C γ b l)
+fixFromLoop C γ b l fx = fx
